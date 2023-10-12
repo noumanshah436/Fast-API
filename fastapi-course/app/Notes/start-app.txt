@@ -1,0 +1,25 @@
+python -m venv fastapi-env
+pip3 install -r requirements.txt
+
+**********************
+Run these to start app:
+
+1) cd /home/dev/fast-api/fastapi-course
+
+2) source fastapi-env/bin/activate
+
+3) cd app
+
+4) uvicorn main:app --reload
+
+**********************
+
+email: sarthak@bitfumes.com
+password: password
+
+**********************
+
+email: noumanrehman042@gmail.com
+password: 12345678
+
+**********************

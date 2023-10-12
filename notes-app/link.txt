@@ -1,0 +1,8 @@
+
+
+How to Build a Full-Stack Web App in Python using FastAPI and React.js
+
+https://thepythoncode.com/article/fullstack-notes-app-with-fastapi-and-reactjs
+
+
+

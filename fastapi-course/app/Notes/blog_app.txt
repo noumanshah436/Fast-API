@@ -1,0 +1,10 @@
+
+
+******************************
+
+repository folder:
+  contain the business logic of all the CRUD operation (like services in nestjs)
+
+
+routers folder:
+  Acts as a controller (like controller in nestjs)

@@ -1,0 +1,32 @@
+
+
+Setup virtual environment first time:
+
+cd /home/dev/fast-api/fastapi-tutorial
+
+python -m venv env
+source ./env/bin/activate
+pip install -r requirements.txt
+
+
+**********************************************
+
+Run project:
+
+cd /home/dev/fast-api/fastapi-tutorial
+
+source ./env/bin/activate
+
+cd 1-Introduction
+uvicorn main:app --reload
+
+or we can specify port:
+
+uvicorn main:app --reload --port=5000
+
+**********************************************
+
+cd 2-Path_Parameters
+uvicorn main:app --reload
+
+**********************************************

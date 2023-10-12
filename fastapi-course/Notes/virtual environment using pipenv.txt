@@ -1,0 +1,22 @@
+$ pipenv --version
+pipenv, version 2023.7.23
+
+$ pyenv --version
+pyenv 2.3.29
+
+*********************************
+
+mkdir .venv
+pipenv --python 3.10.0
+pipenv install -r ./requirements.txt
+
+pipenv shell
+
+uvicorn main:app --reload
+
+*********************************
+
+cd app
+uvicorn main:app --reload
+
+*********************************

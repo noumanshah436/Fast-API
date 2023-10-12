@@ -1,0 +1,20 @@
+outer main file is just for the basics of fastapi
+
+**************************************
+
+blog folder is the blog app (use app folder instead)
+
+**************************************
+
+fastapi-env is the virtual environment
+
+**************************************
+
+app is the final app which can be deployed directly
+(use this instead of blog folder)
+
+**************************************
+
+see docs link at the end of file for learning
+
+**************************************

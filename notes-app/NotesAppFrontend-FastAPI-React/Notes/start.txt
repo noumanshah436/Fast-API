@@ -1,0 +1,38 @@
+npm run dev
+
+Local:   http://localhost:5173/
+
+
+*****************************
+
+
+ 4867  node -v
+ 4868  nvm list
+ 4869  nvm alias default 19
+ 4870  node -v
+ 4871  npm i
+ 4872  npm audit
+ 4873  npm install -g npm@10.2.0
+ 4874  node -v
+ 4875  cat /home/dev/.npm/_logs/2023-10-09T19_55_02_685Z-debug-0.log
+ 
+ 4876  nvm install 20.5.0
+ 4877  nvm list
+ 4878  npm install -g npm@7.0.0
+ 4879  npm -v
+ 4880  node -v
+ 
+ 4881* nvm alias default 20
+ 4882* node -v
+ 4883* npm i
+ 4887* npm run dev
+
+
+*************************
+
+➜  ~ npm -v
+7.0.0
+➜  ~ node -v
+v20.5.0
+
+*************************

@@ -1,0 +1,39 @@
+$ python3 --version
+Python 3.10.0
+
+$ python --version
+Python 3.10.0
+
+****************
+
+pip3 --version
+pip 23.2.1 from /home/dev/.pyenv/versions/3.10.0/lib/python3.10/site-packages/pip (python 3.10)
+
+$ pip --version
+pip 23.2.1 from /home/dev/.pyenv/versions/3.10.0/lib/python3.10/site-packages/pip (python 3.10)
+
+****************
+
+sudo apt install python3-venv
+
+python3 -m venv fastapi-env           -- create virtual environment
+
+source fastapi-env/bin/activate
+
+pip3 install fastapi
+
+pip3 install uvicorn
+
+uvicorn --version
+
+pip3 install sqlalchemy
+pip3 install passlib
+pip3 install bcrypt
+pip3 install python-jose
+pip3 install python-multipart
+
+*************************
+
+Run the server with:
+
+uvicorn main:app --reload
