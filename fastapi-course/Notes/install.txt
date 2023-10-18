@@ -1,16 +1,8 @@
 $ python3 --version
-Python 3.10.0
+Python 3.8.10
 
-$ python --version
-Python 3.10.0
-
-****************
-
-pip3 --version
-pip 23.2.1 from /home/dev/.pyenv/versions/3.10.0/lib/python3.10/site-packages/pip (python 3.10)
-
-$ pip --version
-pip 23.2.1 from /home/dev/.pyenv/versions/3.10.0/lib/python3.10/site-packages/pip (python 3.10)
+$ pip3 --version
+pip 20.0.2 from /usr/lib/python3/dist-packages/pip (python 3.8)
 
 ****************
 

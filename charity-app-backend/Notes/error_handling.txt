@@ -1,0 +1,43 @@
+@validates('city', 'country', 'address', 'motivation')
+    def validate_string_fields(self, key, value):
+        if value is None or value == '':
+            raise ValueError(f"{key.capitalize()} cannot be null")
+        elif not isinstance(value, str):
+            raise ValueError(f"{key.capitalize()} must be a string")
+        return value
+
+    @validates("email")
+    def validate_email(self, key, email):
+        if '@' not in value:
+            raise ValueError("Email address must contain @ symbol")
+        return value
+
+    @validates("phone")
+    def validate_phone(self, key, phone):
+        if not (value.isdigit() and len(value) == 11):
+            raise ValueError("Invalid phone number")
+        return value
+
+    @validates("age")
+    def validate_age(self, key, age):
+        if value <= 0:
+            raise ValueError("Age must be a positive integer")
+        return value
+
+
+********************************
+
+@validates('email')
+    def validate_email(self, key, email):
+        assert '@' in email, "Email address must contain @ symbol"
+        return email
+
+    @validates('phone')
+    def validate_phone(self, key, phone):
+        assert phone.isdigit() and len(phone) == 11, "Invalid phone number"
+        return phone
+
+    @validates('age')
+    def validate_age(self, key, age):
+        assert age > 0, "Age must be a positive integer"
+        return age
