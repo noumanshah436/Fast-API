@@ -27,6 +27,10 @@ def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(
 
 
 # **********************
+# FastAPI OAuth2 with Password (and hashing), Bearer with JWT tokens
+# https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/#hash-and-verify-the-passwords
+
+# **********************
 
 # OAuth2PasswordRequestForm:
 

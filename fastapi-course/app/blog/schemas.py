@@ -8,6 +8,7 @@ class BlogBase(BaseModel):
 
 class Blog(BlogBase):
     class Config():
+        # this is required because we are using model instance as response
         orm_mode = True
 
 class User(BaseModel):

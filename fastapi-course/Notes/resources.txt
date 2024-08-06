@@ -1,5 +1,6 @@
 https://www.youtube.com/watch?v=7t2alSnE2-I&t=6596s
 
+https://fastapi.tiangolo.com/tutorial/first-steps/
 ***************************
 
 https://fastapi.tiangolo.com/?h=insta#installation
@@ -41,5 +42,5 @@ AQLalchemy
 https://fastapi.tiangolo.com/tutorial/sql-databases/
 
 https://docs.sqlalchemy.org/en/20/orm/quickstart.html
-
+https://docs.sqlalchemy.org/en/20/orm/queryguide/query.html#sqlalchemy.orm.Query.filter
 ***************************

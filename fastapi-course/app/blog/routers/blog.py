@@ -38,3 +38,9 @@ def update(id: int, request: schemas.Blog, db: Session = Depends(get_db), curren
 @router.get('/{id}', status_code=200, response_model=schemas.ShowBlog)
 def show(id: int, db: Session = Depends(get_db), current_user: schemas.User = Depends(oauth2.get_current_user)):
     return blog.show(id, db)
+
+
+# we are protecting our routes using below line of code, In get_current_user function we are extracting the token passed with the request and verifying it, 
+# If it is a valid token it will return that user object, otherwise it raise unauthorized exception.
+
+# current_user: schemas.User = Depends(oauth2.get_current_user)

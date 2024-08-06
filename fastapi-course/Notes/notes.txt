@@ -1,15 +1,4 @@
 
-activate virtual environment:
-source fastapi-env/bin/activate
-
-
-Run the server with:
-uvicorn main:app --reload
-
-> main is the file name and app is the instance of FastAPI defined in this file
-
-**********************
-
 @app.get('/blog/unpublished')
 def unpublished():
     return {'data': 'all unpublished blogs'}
@@ -18,7 +7,7 @@ def unpublished():
 1) @app is the path operation decorator.
 2) get is the path operation.
 3) ('/blog/unpublished') is the path.
-3) unpublished is the path operation function
+3) unpublished is the `path operation function`
 
 **********************
 
@@ -65,5 +54,34 @@ request-body:
 To declare a request body, you use Pydantic models with all their power and benefits.
 
 https://fastapi.tiangolo.com/tutorial/body/#request-body
+
+**********************
+
+We have two types of models in this fastapi project:
+
+1) pydantic models which we call schemas
+2) sqlalchemy Models that interact with our database tables
+
+**********************
+https://fastapi.tiangolo.com/tutorial/response-model/
+
+response_model (takes pydantic models)
+
+we can define our own response schema.
+As we may need to hideor add somthing in our response
+
+FastAPI will use this response_model to do all the data documentation, validation, etc. and also to convert and filter the output data to its type declaration.
+
+**********************
+
+https://fastapi.tiangolo.com/tutorial/metadata/#use-your-tags
+
+structure the routes under specific tags
+
+**********************
+
+split api's in multiple files:
+
+https://fastapi.tiangolo.com/tutorial/bigger-applications/
 
 **********************

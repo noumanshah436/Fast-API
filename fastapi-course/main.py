@@ -5,7 +5,9 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
+# This is basics of FastAPI endpoints, use app folder main file for complete project
 
+# http://127.0.0.1:8000/blog?limit=10&published=false&sort=abc
 @app.get('/blog')
 def index(limit=10, published: bool = True, sort: Optional[str] = None):
     # only get 10 published blogs
@@ -43,3 +45,4 @@ class Blog(BaseModel):
 @app.post('/blog')
 def create_blog(blog: Blog):
     return {'data': f"Blog is created with title as {blog.title}"}
+

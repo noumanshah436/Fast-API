@@ -1,0 +1,19 @@
+mkdir .venv 
+pipenv install
+pipenv shell
+uvicorn main:app --reload     # for simple endpoints     
+
+> main is the file name and app is the instance of FastAPI defined in this file
+
+
+**************************
+
+Use app folder main file for complete project
+
+cd app
+uvicorn main:app --reload
+
+or
+
+uvicorn folder_name.main:app --reload
+uvicorn app.main:app --reload

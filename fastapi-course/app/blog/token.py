@@ -18,6 +18,7 @@ get_db = database.get_db
 def create_access_token(data: dict):
     payload = data.copy()
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    # expire = datetime.now(datetime.UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     payload.update({"exp": expire})
 
     encoded_jwt = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
