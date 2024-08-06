@@ -1,0 +1,24 @@
+mkdir .venv
+pipenv shell
+pipenv install -r ./requirements.txt
+
+cd 1-Introduction
+
+uvicorn main:app --reload
+
+or we can specify port:
+
+uvicorn main:app --reload --port=5000
+
+**********************************************
+
+cd 2-Path_Parameters
+uvicorn main:app --reload
+
+**********************************************
+
+More dependencies installations:
+
+To install optional dependencies along with Pydantic:
+
+pipenv install pydantic[email]
