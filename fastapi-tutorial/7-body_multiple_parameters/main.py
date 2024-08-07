@@ -41,7 +41,7 @@ async def update_item(
 
 # *************************************
 
-# item: Item = Body(..., embed=True), 
+# item: Item = Body(..., embed=True),
 
 # If we set embed=True, then we need to pass Body params wrapped in key value pairs like
 
