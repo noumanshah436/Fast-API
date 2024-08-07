@@ -1,0 +1,39 @@
+https://medium.com/@sjalexandre/python-tutorial-managing-projects-with-poetry-cd2deab72697
+
+1) pip install poetry
+
+2) poetry init
+
+> give package name SQLAlchemy 
+ it will give you the list of related packages. select what you want
+
+3) poetry install
+
+4) create models
+
+5) From terminal run:
+pip install sqlalchemy
+
+5) create tables using cli:
+In root folder run python interpreter
+
+$ python 
+>>> from main import engine
+>>> from models.base import Model
+>>> from models.user import *
+>>> Model.metadata.create_all(engine)
+>>> exit()
+
+6) seed database using seed.py file
+
+$ python seed.py
+
+7) run queries in file (run your script as a module from the project root) 
+
+python -m queries.querying
+
+python -m queries.transactions
+
+-> We can also run queries in python interpreter using python interpreter as we do above
+
+

@@ -1,0 +1,65 @@
+@router.get("/threads/all", tags=["Thread"], response_model=Dict[str, Any])
+    async def get_all_threads(
+        self, 
+        current_user: Agent = Depends(get_current_user),  
+        page: int = Query(1, ge=1,description="Select page for the results"),
+        page_size: int = Query(20, ge=1, le=50, description="Limit the number of results")):
+        skip = (page - 1) * page_size 
+        threads: List[Thread] = self.db.query(Thread)\
+                    .join(Customer, Thread.customer_id == Customer.id)\
+                    .filter(Customer.tenant_id == current_user.tenant_id)\
+                    .options(joinedload(Thread.messages))\
+                    .offset(skip)\
+                    .limit(page_size)\
+                    .all()
+        
+        total_items = self.db.query(func.count(Thread.id)).scalar() or 0
+        total_pages = (total_items + page_size - 1) // page_size
+        next_page: Optional[int] = page + 1 if page < total_pages else None
+        
+        if not threads:
+            raise HTTPException(status_code=404, detail="No threads found.")
+
+        # Prepare data with user information for each message
+        threads_data = []
+        for thread in threads:
+            thread.customer.location = get_country_from_address(address=thread.customer.location)
+            thread_data = BaseThread.from_orm(thread).dict()
+            messages_with_user_info = []
+            for message in thread.messages:
+                # Convert SQLAlchemy model instance to Pydantic model instance
+                if message.actor_type == "SYSTEM_CUSTOMER":
+                    continue
+                message_model = BaseMessage.from_orm(message)
+                message_data = message_model.dict()
+                message_data["timestamp"] = message.timestamp.isoformat()
+                actor_info = None
+                if message.actor_type == "CUSTOMER":
+                    actor_info = self.db.query(Customer).filter(Customer.id == message.actor_id).first()
+                    if actor_info:
+                        message_data["actor_first_name"] = actor_info.first_name
+                        message_data["actor_last_name"] = actor_info.last_name
+                elif message.actor_type == "AGENT":
+                    actor_info = self.db.query(Agent).filter(Agent.id == message.actor_id).first()
+                    if actor_info:
+                        message_data["actor_first_name"] = actor_info.first_name
+                        message_data["actor_last_name"] = actor_info.last_name
+                elif message.actor_type == "ASSISTANT":
+                    # Since Assistants are bots and don't have names, assign a generic name or use another attribute
+                    message_data["actor_first_name"] = "Assistant"
+                    message_data["actor_last_name"] = "" 
+
+                messages_with_user_info.append(message_data)
+            
+            thread_data["messages"] = messages_with_user_info
+            threads_data.append(thread_data)
+
+        return {
+        "data": jsonable_encoder(threads_data),
+        "message": "Threads fetched successfully",
+        "page": page,
+        "page_size": page_size,
+        "next_page": next_page,
+        "total_items": total_items,
+    }
+    

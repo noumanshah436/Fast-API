@@ -1,0 +1,5 @@
+Fastapi RESTful API CRUD sorting, paging, and filtering | Part 1 Backend
+
+https://www.youtube.com/watch?v=-e7X5KqVHvM
+
+https://github.com/lemoncode21/Fastapi-crud-sort-pagination

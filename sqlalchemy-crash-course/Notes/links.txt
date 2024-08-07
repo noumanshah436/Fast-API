@@ -1,0 +1,3 @@
+https://www.youtube.com/watch?v=vKuKp10LQEM
+
+SQLAlchemy ORM crash course - Learn SQLAlchemy in 1 hour
