@@ -1,0 +1,5 @@
+1) Go to file you want to debug
+2) Add breakpoint at the line you want to stop execution
+3) press ctrl + shift + p (command pallete)
+4) type debug and select 'Bubug: Restart' option
+5) It will show suggestion based on file, select specific framework or language to start debugging.

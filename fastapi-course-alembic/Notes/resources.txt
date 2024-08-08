@@ -1,0 +1,46 @@
+https://www.youtube.com/watch?v=7t2alSnE2-I&t=6596s
+
+https://fastapi.tiangolo.com/tutorial/first-steps/
+***************************
+
+https://fastapi.tiangolo.com/?h=insta#installation
+
+***************************
+Pydantic
+All the data validation is performed under the hood by Pydantic,
+ so you get all the benefits from it. And you know you are in good hands.
+
+https://fastapi.tiangolo.com/tutorial/path-params/#pydantic
+
+***************************
+
+sql-databases:
+https://fastapi.tiangolo.com/tutorial/sql-databases/
+
+relationship:
+https://fastapi.tiangolo.com/tutorial/sql-databases/?h=relationshi#create-the-relationships
+
+***************************
+
+password-hashing:
+https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/?h=password+has#password-hashing
+
+jwt token:
+https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/#about-jwt
+
+***************************
+Tags:
+
+Use the tags parameter with your path operations (and APIRouters) to assign them to different tags:
+
+https://fastapi.tiangolo.com/tutorial/metadata/#use-your-tags
+
+***************************
+
+AQLalchemy
+
+https://fastapi.tiangolo.com/tutorial/sql-databases/
+
+https://docs.sqlalchemy.org/en/20/orm/quickstart.html
+https://docs.sqlalchemy.org/en/20/orm/queryguide/query.html#sqlalchemy.orm.Query.filter
+***************************

@@ -1,0 +1,100 @@
+Alembic is a lightweight database migration tool for usage with the SQLAlchemy Database Toolkit for Python.
+
+Why Alembic?
+- It's allows developers to manage the database migrations with ease.
+- We can the changes and revert the changes to/from the database.
+- Alembic is similar to Active Record Migrations for Ruby on Rails
+
+install "alembic" with pipenv
+- run the command pipenv install alembic
+- activate the virtual environment with command pipenv shell
+- now, run the command alembic init alembic. It will create the configuration files for alembic.
+
+**************************
+
+pip install alembic
+
+alembic -h
+
+alembic init alembic
+
+it will create folder for migrations, we can use any name for that folder like
+
+alembic init migrations
+
+*************************
+
+1) create a new revision(migration) in versions folder
+$ alembic revision -m "category table"
+
+2) update migration file by adding upgrade and downgrade functions
+
+3) see sql that will execute, when we apply migrations
+$ alembic upgrade head --sql
+
+4) Apply migrations
+$ alembic upgrade head
+
+
+5) to downgrade the last 1 migrate
+$ alembic downgrade -1
+
+alembic downgrade +1
+
+
+*************************
+https://www.youtube.com/watch?v=SdcH6IEi6nE
+
+Alembic with Fast API
+
+1) Instal alembic in Fast api project as we do before
+
+2) Configure alembi cwith our database
+
+i) We need to set traget_metadata variable of env.py file to our Base class 
+
+from blog import models
+target_metadata = models.Base.metadata
+
+ii) also update the sqlalchemy.url in alembic.ini file with our db file
+
+sqlalchemy.url = sqlite:///./blog.db
+
+
+3) Create revisions based of our models in models.py file
+alembic revision --autogenerate -m "First revision"
+
+autogenerate flag: it will look for the declarative base and auto-generate the migrations based on the changes
+
+4) apply migrations
+alembic upgrade head
+
+or we can also specify the version upto which version we want to apply migrations
+alembic upgrade version_number  (or first unique chars of the revision name)
+
+5) Now if we want to add or change something, we will re run the revision command and it will generate migration for that changes.
+
+alembic revision --autogenerate -m "First revision"
+alembic upgrade head
+
+
+
+
+************************************
+
+setup project:
+
+
+mkdir .venv
+pipenv shell
+pipenv install 
+
+pipenv install sqlalchemy
+pipenv install alembic
+
+cd app
+alembic init alembic
+
+
+
+************************************

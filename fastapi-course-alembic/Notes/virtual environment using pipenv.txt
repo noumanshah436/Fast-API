@@ -1,0 +1,39 @@
+$ python3 --version
+Python 3.10.0
+
+$ python --version
+Python 3.10.0
+
+****************
+
+pip3 --version
+pip 23.2.1 from /home/dev/.pyenv/versions/3.10.0/lib/python3.10/site-packages/pip (python 3.10)
+
+$ pip --version
+pip 23.2.1 from /home/dev/.pyenv/versions/3.10.0/lib/python3.10/site-packages/pip (python 3.10)
+
+
+**********************************
+
+$ pipenv --version
+pipenv, version 2023.7.23
+
+$ pyenv --version
+pyenv 2.3.29
+
+*********************************
+
+mkdir .venv
+pipenv --python 3.10.0
+pipenv install -r ./requirements.txt
+
+pipenv shell
+
+uvicorn main:app --reload
+
+*********************************
+
+cd app
+uvicorn main:app --reload
+
+*********************************

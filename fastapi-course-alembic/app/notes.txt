@@ -1,0 +1,10 @@
+https://www.youtube.com/watch?v=7t2alSnE2-I&t=13860s
+
+https://fastapi.tiangolo.com/deployment/cloud/
+https://dev.to/mufasasa/fastapi-deployment-on-deta-25kd
+
+For deployment part:
+
+1) Moved the blog inside app folder
+2) move main.py in root folder(app) and adjust paths in blog module
+
