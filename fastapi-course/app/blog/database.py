@@ -29,3 +29,15 @@ def get_db():
 
 
 # https://fastapi.tiangolo.com/tutorial/sql-databases/
+
+# **********************************
+
+# SQLALCHAMY_DATABASE_URL = 'sqlite:///./blog.db'
+
+# Here’s how to read this path:
+
+# sqlite: Specifies that SQLite is the database type.
+# ///: Indicates that the database is stored in a file, not in memory. The triple slash /// is used for relative paths in SQLite.
+# ./blog.db: The relative path to the database file, blog.db, located in the current working directory (denoted by ./).
+
+# **********************************
