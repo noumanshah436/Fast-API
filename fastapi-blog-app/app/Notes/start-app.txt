@@ -4,7 +4,7 @@ pip3 install -r requirements.txt
 **********************
 Run these to start app:
 
-1) cd /home/dev/fast-api/fastapi-course
+1) cd /home/dev/Fast-API/fastapi-blog-app
 
 2) source fastapi-env/bin/activate
 
