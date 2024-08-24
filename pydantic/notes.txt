@@ -1,0 +1,7 @@
+
+
+Pydantic (BugBytes)
+https://www.youtube.com/playlist?list=PL-2EBeDYMIbQQGc6kiBSm81XspmwVuk-t
+
+
+blogs https://bugbytes.io/posts/pydantic-validators/

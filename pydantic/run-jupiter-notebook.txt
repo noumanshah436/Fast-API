@@ -1,0 +1,15 @@
+
+
+1) install
+pip3 install jupyter
+
+2) open folder
+jupyter notebook
+
+
+
+3) open specific file
+
+In the terminal and in the folder where your ipynb file is located, enter:
+
+jupyter notebook NAMEOFFILE.ipynb
