@@ -20,7 +20,7 @@ class User(BaseModel):
 
 @app.put("/items/{item_id}")
 async def update_item(
-    *,
+    *,  # this says that any parameters after this are keyword arguments
     item_id: int = Path(..., title="The ID of the item to get", ge=0, le=150),
     q: str | None = None,
     item: Item = Body(..., embed=True),

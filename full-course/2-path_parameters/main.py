@@ -5,21 +5,6 @@ from fastapi import FastAPI
 app = FastAPI()
 
 
-@app.get("/")
-async def root():
-    return {"message": "hello world"}
-
-
-@app.post("/")
-async def post():
-    return {"message": "hello from the post route"}
-
-
-@app.put("/")
-async def put():
-    return {"message": "hello from the put route"}
-
-
 @app.get("/users")
 async def list_users():
     return {"message": "list users route"}
@@ -54,5 +39,3 @@ async def get_food(food_name: FoodEnum):
     return {"food_name": food_name, "message": "i like chocolate milk"}
 
 # *****************************
-
-

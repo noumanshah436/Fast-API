@@ -1,0 +1,5 @@
+
+FastAPI + Redis + arq + HTML Fronted
+
+https://www.youtube.com/watch?v=vHtc_mg1PGU
+

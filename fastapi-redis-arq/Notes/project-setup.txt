@@ -1,0 +1,21 @@
+mkdir .venv 
+pipenv install
+pipenv shell                      -- activate shell
+
+pipenv install fastapi
+pipenv install uvicorn
+pipenv install arq
+pipenv install jinja2
+pipenv install redis==4.5.3
+
+
+uvicorn app.main:app --reload
+
+
+***************************
+
+in another terminal:
+
+pipenv shell                      -- activate shell
+arq app.worker.WorkerSettings
+

@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+fastapi = "*"
+uvicorn = "*"
+arq = "*"
+jinja2 = "*"
+redis = "==4.5.3"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"
