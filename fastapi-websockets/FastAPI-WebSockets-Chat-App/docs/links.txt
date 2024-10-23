@@ -1,0 +1,6 @@
+
+Building A Simple WebSocket Chat Application With FastAPI And JavaScript
+
+https://www.youtube.com/live/5o__C9wJHZA
+
+https://github.com/jod35/FastAPI-WebSockets-Chat-App

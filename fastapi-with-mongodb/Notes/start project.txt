@@ -1,0 +1,5 @@
+cd backend
+mkdir .venv
+pipenv install
+pipenv shell
+uvicorn main:app --reload

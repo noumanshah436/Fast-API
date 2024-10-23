@@ -16,6 +16,8 @@ async def fetch_one_todo(title):
 async def fetch_all_todos():
     todos = []
     cursor = collection.find({})
+    # total_items = await collection.count_documents({"title": "title 2"})
+    # print(f"total_items -----------------------{total_items}")
     async for document in cursor:
         todos.append(Todo(**document))
     return todos

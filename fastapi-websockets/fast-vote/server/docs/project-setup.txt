@@ -1,0 +1,9 @@
+python -m venv venv
+source venv/bin/activate
+pip install fastapi  uvicorn[standard] sqlalchemy sqlmodel
+
+
+
+pip freeze > requirements.txt
+
+uvicorn main:app --reload

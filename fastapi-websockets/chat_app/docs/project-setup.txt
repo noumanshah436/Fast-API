@@ -1,0 +1,18 @@
+python -m venv venv
+source venv/bin/activate
+pip install fastapi  uvicorn[standard]
+
+pip install Jinja2
+
+pip freeze > requirements.txt
+
+uvicorn main:app --reload
+
+
+*****************************
+
+simple web socket app from fastapi:
+
+uvicorn basic:app --reload
+
+*****************************
