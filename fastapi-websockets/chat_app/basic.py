@@ -25,6 +25,10 @@ html = """
         <script>
             // Establish a WebSocket connection to the server
             var ws = new WebSocket("ws://localhost:8000/ws");
+
+            ws.onopen = function() {
+                console.log("WebSocket connection opened.");
+            };
             
             // Event handler for receiving messages from the server
             ws.onmessage = function(event) {
@@ -34,7 +38,11 @@ html = """
                 message.appendChild(content)
                 messages.appendChild(message)
             };
-            
+
+            ws.onclose = function() {
+                console.log("WebSocket connection closed.");
+            };
+        
             // Function to send messages to the server
             function sendMessage(event) {
                 var input = document.getElementById("messageText")

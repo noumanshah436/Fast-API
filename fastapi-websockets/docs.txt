@@ -1,0 +1,25 @@
+
+
+
+chat_app:
+
+Contains
+
+	basic.py   ->  simple websocket endpoint from fastapi docs
+
+	basic2.py  ->  Web socket endpoint with cookies and tokens for authentication
+	
+	main.py    -> chat application
+
+
+
+***********************************
+
+
+fast-vote
+
+
+Real time voting app
+
+
+***********************************

@@ -16,3 +16,9 @@ simple web socket app from fastapi:
 uvicorn basic:app --reload
 
 *****************************
+
+Web socket with cookies and token from fastapi:
+
+uvicorn basic2:app --reload
+
+*****************************
