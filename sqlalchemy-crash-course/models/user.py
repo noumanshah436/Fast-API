@@ -89,7 +89,9 @@ class UserRole(TimeStampedModel):
 
 # In SQLAlchemy, passive_deletes is an option that you can set on a relationship to control whether or not the deletion of related objects is handled automatically by SQLAlchemy.
 
-# By default, SQLAlchemy will handle the deletion of related objects according to the cascade rules specified. However, if you set passive_deletes=True, SQLAlchemy will not issue a DELETE statement for related objects when the parent object is deleted. Instead, it relies on the database to handle this deletion, which can be useful if you have database-level foreign key constraints with ON DELETE CASCADE.
+# By default, SQLAlchemy will handle the deletion of related objects according to the cascade rules specified. 
+# However, if you set passive_deletes=True, SQLAlchemy will not issue a DELETE statement for related objects when the parent object is deleted. 
+# Instead, it relies on the database to handle this deletion, which can be useful if you have database-level foreign key constraints with ON DELETE CASCADE.
 
 # ****************************************
 

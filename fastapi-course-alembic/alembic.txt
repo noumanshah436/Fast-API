@@ -42,6 +42,9 @@ $ alembic downgrade -1
 alembic downgrade +1
 
 
+$ alembic current
+It helps you see which migration is currently applied to the database.
+
 *************************
 https://www.youtube.com/watch?v=SdcH6IEi6nE
 
@@ -49,14 +52,15 @@ Alembic with Fast API
 
 1) Instal alembic in Fast api project as we do before
 
-2) Configure alembi cwith our database
+2) Configure alembi with our database
 
 i) We need to set traget_metadata variable of env.py file to our Base class 
 
-from blog import models
+from blog import models   
 target_metadata = models.Base.metadata
 
 ii) also update the sqlalchemy.url in alembic.ini file with our db file
+(Note: it's better to override this variable in env.py file instead of writing in alembic.ini file)
 
 sqlalchemy.url = sqlite:///./blog.db
 

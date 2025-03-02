@@ -1,0 +1,14 @@
+POST http://localhost:8000/job
+
+body:
+{
+    "lowest": 5,
+    "highest": 10
+}
+
+
+response: 
+{
+    "success": true,
+    "job_id": "f224b7f5-6835-437d-aa2a-1eda6ef34c62"
+}

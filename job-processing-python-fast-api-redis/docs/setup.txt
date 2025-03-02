@@ -1,0 +1,14 @@
+python -m venv venv
+
+$ source venv/bin/activate
+$ pip install -r requirements.txt 
+
+
+Start Fastapi app:
+$ uvicorn main:app --reload
+
+
+Start the worker to consume the job in new terminal:
+$ rq worker <queue-name>
+
+$ rq worker task_queue

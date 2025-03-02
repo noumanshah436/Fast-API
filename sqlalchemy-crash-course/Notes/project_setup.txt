@@ -2,6 +2,12 @@ https://medium.com/@sjalexandre/python-tutorial-managing-projects-with-poetry-cd
 
 1) pip install poetry
 
+$ python -m venv venv
+$ source venv/bin/activate
+
+$ poetry install --no-root
+
+
 2) poetry init
 
 > give package name SQLAlchemy 
