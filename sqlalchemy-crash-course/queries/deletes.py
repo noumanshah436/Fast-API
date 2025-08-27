@@ -1,15 +1,19 @@
+from sqlalchemy import select
 from main import session
 from models.user import User
 
-user = User.query.first()
+# Get the first user
+query = select(User)
+user = session.execute(query).scalar()
 
 print(user)
 
-
+# Delete the user
 session.delete(user)
 session.commit()
 
-
-user = User.query.first()
+# Get the first user after deletion
+query = select(User)
+user = session.execute(query).scalar()
 
 print(user)

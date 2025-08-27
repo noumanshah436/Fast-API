@@ -1,0 +1,22 @@
+
+
+POST http://localhost:8000/login
+
+Body as form-data in postman:
+
+  username: noumanrehman042@gmail.com
+  password: 12345678
+
+response:
+{
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJub3VtYW5yZWhtYW4wNDJAZ21haWwuY29tIiwiZXhwIjoxNjk3MTMxOTI4fQ.XqK2ASfSUqImooaOd98mvkBmQyhUPj9qpwkAe4sMo0U",
+    "token_type": "bearer"
+}
+
+*********************************
+
+GET http://localhost:8000/blog
+
+with bearer token received from login
+
+*********************************

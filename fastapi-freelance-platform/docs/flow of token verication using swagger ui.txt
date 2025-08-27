@@ -1,0 +1,64 @@
+Swagger UI, when integrated with a FastAPI project, does not automatically handle the authentication flow for you.
+Instead, it relies on the OAuth2 authentication flow you've defined in your FastAPI application.
+
+Here's how the process generally works when using Swagger UI to test API endpoints with OAuth2 authentication:
+
+****************************
+
+
+Access Swagger UI:
+
+When you access the Swagger UI for your FastAPI project, typically at a URL like http://localhost:8000/docs, you'll see the Swagger UI interface.
+
+****************************
+
+Authorization in Swagger UI:
+
+In Swagger UI, you'll see an "Authorize" button, usually at the top-right corner of the page.
+Clicking on the "Authorize" button opens a dialog where you can input your credentials (username and password).
+
+****************************
+
+Token Retrieval:
+
+When you click the "Authorize" button, Swagger UI sends a request to the token URL specified in your OAuth2 scheme (in your case, "login").
+
+****************************
+
+Login Endpoint Execution:
+
+FastAPI's OAuth2PasswordBearer scheme (oauth2_scheme) is triggered, and it expects a valid username and password to be provided.
+Your login endpoint logic is executed, which includes verifying the credentials and generating an access token.
+
+****************************
+
+Token Storage in Swagger UI:
+
+If the login is successful, Swagger UI stores the obtained access token.
+This stored token is then used in the Authorization header for subsequent requests made through Swagger UI.
+
+****************************
+
+Requesting API Endpoints:
+
+When you make requests to your API endpoints using Swagger UI, it automatically includes the stored access token in the Authorization header.
+This is similar to how a client application would include the access token when making requests to a secured API.
+
+****************************
+
+Token Verification:
+
+FastAPI's dependency (get_current_user) is triggered for each request that requires authentication.
+The stored access token is sent in the Authorization header, and the verify_token function verifies the token's validity.
+
+****************************
+
+In summary, Swagger UI acts as a client for your API, and it follows the OAuth2 authentication flow you've defined in your FastAPI application.
+
+It doesn't independently authenticate users; rather, it relies on your FastAPI application's authentication mechanisms to obtain and use access tokens.
+
+Once you've authorized yourself through Swagger UI, subsequent requests will include the token, and FastAPI will use its defined authentication flow to verify and authorize these requests.
+
+
+
+

@@ -1,0 +1,65 @@
+### 6. DB Design and SQL
+You are building a Freelancing Platform Backend (like Upwork/Fiverr) where users can be Clients or Freelancers.
+
+You need to implement the database structure and work with the following requirements:
+
+- Users can create multiple Projects.
+- Freelancers can submit multiple Proposals for Projects.
+- Each Proposal has a Status (e.g., Submitted, Accepted, Rejected).
+- Contracts are created when a Proposal is accepted.
+- Each Contract has multiple Milestones (with payment tracking).
+
+### Tables
+```
+User
+- id (PK)
+- name
+- email
+- user_type (client or freelancer)
+
+Project
+- id (PK)
+- client_id (FK → User.id)
+- title
+- description
+- created_at
+
+Proposal
+- id (PK)
+- project_id (FK → Project.id)
+- freelancer_id (FK → User.id)
+- bid_amount
+- status (submitted, accepted, rejected)
+- created_at
+
+Contract
+- id (PK)
+- proposal_id (FK → Proposal.id)
+- start_date
+- end_date
+- total_amount
+
+Milestone
+- id (PK)
+- contract_id (FK → Contract.id)
+- title
+- amount
+- due_date
+- is_paid (boolean)
+```
+
+Questions:
+- Write a SQL query to fetch the top 5 freelancers (user names) who have earned the highest total amount across all contracts.
+- Below is a problematic query written by a junior developer. It is very slow on a large dataset (millions of rows). Identify issues and rewrite an optimized version:
+```
+SELECT u.name, SUM(m.amount)
+FROM user u, project p, proposal pr, contract c, milestone m
+WHERE u.id = pr.freelancer_id
+AND p.id = pr.project_id
+AND c.proposal_id = pr.id
+AND m.contract_id = c.id
+AND m.is_paid = true
+GROUP BY u.name
+ORDER BY SUM(m.amount) DESC
+LIMIT 5;
+``` 

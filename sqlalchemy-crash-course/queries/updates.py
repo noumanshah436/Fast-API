@@ -1,22 +1,27 @@
+from sqlalchemy import select, update
 from main import session
 from models.user import Preference, User
 
-user_preference = (
-    Preference.query
+# Get user preference by joining with user and filtering by email
+query = (
+    select(Preference)
     .join(Preference.user)
-    .filter(User.email == "johndoe@gmail.com")
-    .first()
+    .where(User.email == "johndoe@gmail.com")
 )
+user_preference = session.execute(query).scalar()
 
+# Update the preference
 user_preference.currency = "GBP"
 session.commit()
 
-
-user = User.query \
-    .filter(User.first_name == "John") \
-    .filter(User.last_name == "Doe") \
-    .update({"email": "johndoe@hotmail.com"})
-
+# Update user email using update statement
+query = (
+    update(User)
+    .where(User.first_name == "John")
+    .where(User.last_name == "Doe")
+    .values(email="johndoe@hotmail.com")
+)
+session.execute(query)
 
 session.commit()
 

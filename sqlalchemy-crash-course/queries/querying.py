@@ -1,18 +1,38 @@
-from sqlalchemy import desc
+from sqlalchemy import desc, select, func
+from sqlalchemy.orm import selectinload
 
 from models.user import User, Role
+from main import session
 
-all_users = User.query.all()
-first_user = User.query.first()
-
+# Get all users from the database
+query = select(User)
+all_users = session.execute(query).scalars().all()
 print(all_users)
+
+# Get the first user from the database (inefficient)
+query = select(User)
+first_user = session.execute(query).scalar()
+
+# Get the first user from the database (efficient)
+query = select(User).limit(1)
+first_user = session.execute(query).scalar()
+
+print(first_user)
+
 
 # ************************************
 
-johns = User.query.filter_by(first_name="John").all()
-johns = User.query.filter(User.first_name == "John").all()
+# Find all users with first name "John"
+query = select(User).where(User.first_name == "John")
+johns = session.execute(query).scalars().all()
 
-gmail_users = User.query.filter(User.email.like("%@gmail.com")).all()
+# Alternative way to filter users with first name "John"
+query = select(User).filter(User.first_name == "John")
+johns_alt = session.execute(query).scalars().all()
+
+# Find all users with Gmail email addresses
+query = select(User).where(User.email.like("%@gmail.com"))
+gmail_users = session.execute(query).scalars().all()
 
 print(johns)
 print(gmail_users)
@@ -20,44 +40,47 @@ print(gmail_users)
 # ************************************
 # joins
 
-super_admins = (
-    User.query
-    .join(User.roles)
-    .filter(Role.slug == "super-admin")
-    .all()
-)
+# Find all users who have the "super-admin" role (using join)
+query = select(User).join(User.roles).where(Role.slug == "super-admin")
+super_admins = session.execute(query).scalars().all()
 
 print(super_admins)
+
+# raw sql:
+
+# SELECT * FROM users 
+# JOIN user_roles AS user_roles_1 ON users.id = user_roles_1.user_id 
+# JOIN roles ON roles.id = user_roles_1.role_id 
+# WHERE roles.slug = 'super-admin'
 
 # ************************************
 # ordering
 
-users_by_name = (
-    User.query
-    .order_by(User.first_name)
-    .all()
-)
+# Get all users ordered by first name (ascending)
+query = select(User).order_by(User.first_name)
+users_by_name = session.execute(query).scalars().all()
 
-users_by_name_desc = (
-    User.query
-    .order_by(desc(User.first_name))
-    .all()
-)
+# Get all users ordered by first name (descending)
+query = select(User).order_by(desc(User.first_name))
+users_by_name_desc = session.execute(query).scalars().all()
 
-#  if two user have same first_name, then it will order them by last_name
-users_by_names_desc = (
-    User.query
-    .order_by(desc(User.first_name))
-    .order_by(desc(User.last_name))
-    .all()
-)
+# Get all users ordered by first name (descending), then by last name (descending)
+# If two users have the same first name, they will be ordered by last name
+query = select(User).order_by(desc(User.first_name)).order_by(desc(User.last_name))
+users_by_names_desc = session.execute(query).scalars().all()
+
 # ************************************
 
-first_three_users = User.query.limit(3).all()
+# Get only the first 3 users
+query = select(User).limit(3)
+first_three_users = session.execute(query).scalars().all()
 
-# to skip first 3 users
-skip_three_users = User.query.offset(3).all()
+# Skip the first 3 users and get the rest
+query = select(User).offset(3)
+skip_three_users = session.execute(query).scalars().all()
 
-num_of_users = User.query.count()
+# Count the total number of users in the database
+query = select(func.count(User.id))
+num_of_users = session.execute(query).scalar()
 
 print(num_of_users)

@@ -17,7 +17,7 @@ class User(TimeStampedModel):
     roles = Relationship("Role", secondary="user_roles", back_populates="users", passive_deletes=True)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}, name: {self.first_name} {self.last_name}"
+        return f"{self.__class__.__name__}, name: {self.first_name} {self.last_name}\n"
 
 # **********************************************
 

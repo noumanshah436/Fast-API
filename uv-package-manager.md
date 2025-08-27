@@ -65,6 +65,13 @@ That's it! 🎉 Your FastAPI project is up and running with **uv**. 🚀 Let me 
 
 **********************************************
 
+Create and Activate Virtual Environment
+- uv venv
+- .\.venv\Scripts\activate   (for windows)
+- uv sync
+
+**********************************************
+
 
 ### Here are some **`uv`** commands that you can use for managing your FastAPI project:  
 

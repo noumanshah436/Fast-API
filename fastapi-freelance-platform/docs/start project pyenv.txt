@@ -1,0 +1,12 @@
+mkdir .venv 
+pipenv install
+pipenv shell
+
+
+cd app
+uvicorn main:app --reload
+
+or
+
+uvicorn folder_name.main:app --reload
+uvicorn app.main:app --reload
