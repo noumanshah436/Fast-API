@@ -57,6 +57,36 @@ query = select(user_alias.c.first_name, user_alias.c.last_name)
 
 ---
 
+## when to use `.scalars().all()` or `.all()`
+
+✅ **Use `.scalars().all()`** → when your query selects **one thing per row** (ORM object or single column).
+Example:
+
+```python
+result = await session.execute(select(JobFamily))
+families = result.scalars().all()   # ✅ list[JobFamily]
+```
+
+or
+
+```python
+result = await session.execute(select(JobFamily.name))
+names = result.scalars().all()      # ✅ list[str]
+```
+
+---
+
+✅ **Use `.all()`** → when your query selects **multiple columns** (tuples).
+Example:
+
+```python
+result = await session.execute(select(JobFamily.name, JobFamily.definition))
+rows = result.all()                 # ✅ list[tuple[str, str]]
+```
+
+
+---
+
 ## 2. Filtering Methods
 
 ### Basic WHERE Clause

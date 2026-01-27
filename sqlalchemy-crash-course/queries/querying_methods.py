@@ -389,9 +389,29 @@ print("\n15. EAGER LOADING")
 print("-" * 40)
 
 # selectinload (for collections)
-query = select(User).options(selectinload(User.addresses))
-users_with_addresses = session.execute(query).scalars().all()
-print(f"Users with eagerly loaded addresses: {len(users_with_addresses)}")
+
+# Query to get addresses with their associated users
+query = select(Address).options(selectinload(Address.user))
+addresses_with_users = session.execute(query).scalars().all()
+
+print("Addresses with their associated users:")
+for address in addresses_with_users:
+    print(f"Address ID: {address.id}")
+    print(f"City: {address.city}")
+    print(f"User: {address.user}")
+
+# Query to get users with their associated addresses 
+print("Users with their addresses:")
+query_users = select(User).options(selectinload(User.addresses))
+users_with_addresses = session.execute(query_users).scalars().all()
+for user in users_with_addresses:
+    print(f"\nUser: {user}")
+    if user.addresses:
+        print("  Addresses:")
+        for address in user.addresses:
+            print(f"{address.id}, {address.city}")
+    else:
+        print("No addresses")
 
 # joinedload (for single relationships)
 query = select(User).options(joinedload(User.preference))
