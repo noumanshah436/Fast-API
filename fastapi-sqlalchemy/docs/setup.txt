@@ -1,0 +1,15 @@
+uv venv
+source .venv/bin/activate
+
+uv add fastapi "uvicorn[standard]"
+uv add alembic
+uv add pydantic_settings
+uv add asyncpg
+
+uv add sqlalchemy asyncpg
+uv add loguru
+
+uv add --group dev ruff
+uv add --group dev pyright
+uv add --group dev watchfiles
+

@@ -1,0 +1,27 @@
+# flyctl launch added from .gitignore
+**\.venv
+**\__pycache__
+**\uploads
+**\.env
+**\backend\.env
+**\backend\uploads
+**\frontend\.env
+**\frontend\uploads
+**\processed_files
+
+# Docker
+**\data
+
+# Environment variables
+**\.env
+
+# Uploads
+**\uploads
+
+# Database
+**\*.db
+
+
+# flyctl launch added from .venv\.gitignore
+.venv\**\*
+fly.toml
