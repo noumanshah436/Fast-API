@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String
-from src.database.models import PostgresModel
+from src.database.models.postgres_model import PostgresModel
+from sqlalchemy.orm import relationship
 
 
 class User(PostgresModel):
@@ -7,3 +8,5 @@ class User(PostgresModel):
 
     name = Column(String)
     email = Column(String, unique=True, nullable=False)
+
+    posts = relationship("Post", back_populates="user")

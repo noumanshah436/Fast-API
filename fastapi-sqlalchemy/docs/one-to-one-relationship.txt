@@ -1,0 +1,179 @@
+ 
+# One User can have many Posts, a post belongs to one User
+
+
+class User(PostgresModel):
+    __tablename__ = "users"
+
+    name = Column(String)
+    email = Column(String, unique=True, nullable=False)
+
+    posts = relationship("Post", back_populates="user")
+
+
+class Post(PostgresModel):
+    __tablename__ = "posts"
+
+    title = Column(String, nullable=False)
+    description = Column(String)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    user = relationship("User", back_populates="posts")
+
+
+
+# ----------------------------------
+# CREATE User 
+# ----------------------------------
+
+from sqlalchemy import select, and_, or_, not_, func, desc, asc, distinct, case, cast, String, Integer, Boolean
+from sqlalchemy.orm import selectinload, joinedload, subqueryload, contains_eager
+import asyncio
+from src.database.config import get_pg_db
+from src.database.models import *
+ 
+session_gen = get_pg_db()
+session = await anext(session_gen)
+
+---
+
+user = User(
+    name="nouman",
+    email="nouman@gmail.com",
+)
+session.add(user)
+await session.commit()
+await session.refresh(user)
+
+print("Created User:", user)
+
+# ----------------------------------
+# read User 
+# ----------------------------------
+
+result = await session.execute(
+    select(User)
+    .options(selectinload(User.posts))
+    .where(User.id == user.id)
+)
+
+user_with_posts = result.scalar_one()
+
+
+# ----------------------------------
+# CREATE POSTS 
+# ----------------------------------
+
+post = Post(
+        title="title",
+        description="description",
+        user_id=1,
+)
+session.add(post)
+await session.commit()
+await session.refresh(post)
+return post
+
+
+# ----------------------------------
+# CREATE POSTS (via relationship)
+# ----------------------------------
+
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
+# first fetch user with posts
+
+result = await session.execute(
+    select(User)
+    .options(selectinload(User.posts))
+    .where(User.id == 1)
+)
+
+user = result.scalar_one()
+user.posts  # ✅ WORKS
+
+---
+
+post1 = Post(
+    title="First Post",
+    description="This is my first post",
+)
+post2 = Post(
+    title="Second Post",
+    description="Another post",
+)
+
+user.posts.extend([post1, post2])
+await session.commit()
+
+print("Created Posts:", user.posts)
+
+# ----------------------------------
+# READ ALL USERS
+# ----------------------------------
+result = await session.execute(select(User))
+users = result.scalars().all()
+print("All Users:", users)
+
+# ----------------------------------
+# READ USER WITH POSTS
+# ----------------------------------
+
+result = await session.execute(
+    select(User)
+    .options(selectinload(User.posts))
+    .where(User.id == user.id)
+)
+
+user_with_posts = result.scalar_one()
+print("User With Posts:", user_with_posts)
+print("Posts:", user_with_posts.posts)
+
+# ----------------------------------
+# READ POSTS BY USER
+# ----------------------------------
+result = await session.execute(
+    select(Post).where(Post.user_id == user.id)
+)
+posts = result.scalars().all()
+print("Posts By User:", posts)
+
+# ----------------------------------
+# UPDATE USER
+# ----------------------------------
+user.name = "Nouman Updated"
+await session.commit()
+await session.refresh(user)
+print("Updated User:", user)
+
+# ----------------------------------
+# UPDATE POST
+# ----------------------------------
+post1.title = "Updated First Post"
+await session.commit()
+await session.refresh(post1)
+print("Updated Post:", post1)
+
+# ----------------------------------
+# DELETE ONE POST
+# ----------------------------------
+await session.delete(post2)
+await session.commit()
+print("Deleted Post 2")
+
+# ----------------------------------
+# VERIFY POSTS AFTER DELETE
+# ----------------------------------
+result = await session.execute(
+    select(Post).where(Post.user_id == user.id)
+)
+remaining_posts = result.scalars().all()
+print("Remaining Posts:", remaining_posts)
+
+# ----------------------------------
+# DELETE USER (cascade deletes posts)
+# ----------------------------------
+await session.delete(user)
+await session.commit()
+print("Deleted User")

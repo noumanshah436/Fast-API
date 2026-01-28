@@ -5,7 +5,9 @@ $ uv run ipython
 import asyncio
 from src.database.config import get_pg_db
 from src.database.models import *
-from sqlalchemy import select
+from sqlalchemy import select, and_, or_, not_, func, desc, asc, distinct, case, cast, String, Integer, Boolean
+from sqlalchemy.orm import selectinload, joinedload, subqueryload, contains_eager
+ 
 
 # 1️⃣ Create async generator
 session_gen = get_pg_db()
