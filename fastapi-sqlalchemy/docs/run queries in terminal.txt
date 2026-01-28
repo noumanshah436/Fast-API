@@ -1,0 +1,46 @@
+
+$ uv run ipython
+
+
+import asyncio
+from src.database.config import get_pg_db
+from src.database.models import *
+from sqlalchemy import select
+
+# 1️⃣ Create async generator
+session_gen = get_pg_db()
+
+# 2️⃣ Get session
+session = await anext(session_gen)
+
+# 3️⃣ Add objects
+user = User(name="Syed nouman", email="syednouman@gmail.com")
+session.add(user)
+
+# 4️⃣ Commit
+await session.commit()
+
+# 5️⃣ Refresh object to get ID (updates object with DB-generated values)
+await session.refresh(user)
+print(user.id)
+
+# 6️⃣ Query inline
+from sqlalchemy import text
+result = await session.execute(text("SELECT * FROM users"))
+rows = result.fetchall()
+print(rows)
+
+
+# 7️⃣ Close session generator
+await session.aclose()
+
+
+*********************************
+ 
+Get all users:
+
+result = await session.execute(select(User))
+users = result.scalars().all()
+  
+
+****************************
