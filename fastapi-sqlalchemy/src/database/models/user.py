@@ -9,8 +9,6 @@ class User(PostgresModel):
     name = Column(String)
     email = Column(String, unique=True, nullable=False)
 
-    posts = relationship("Post", back_populates="user")
-
     posts = relationship(
         "Post",
         back_populates="user",
@@ -19,8 +17,7 @@ class User(PostgresModel):
     )
 
     profile = relationship(
-        "Profile",
-        back_populates="user",
-        cascade="all, delete-orphan",
-        uselist=False,
+        "Profile", back_populates="user", cascade="all, delete-orphan", uselist=False
     )
+
+    roles = relationship("Role", secondary="user_roles", back_populates="users")

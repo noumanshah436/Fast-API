@@ -1,0 +1,78 @@
+
+class User(PostgresModel):
+    __tablename__ = "users"
+
+    name = Column(String)
+    email = Column(String, unique=True, nullable=False)
+
+    roles = relationship("Role", secondary="user_roles", back_populates="users")
+
+
+class Role(PostgresModel):
+    __tablename__ = "roles"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(80), nullable=False)
+    slug = Column(String(80), nullable=False, unique=True)
+
+    users = relationship("User", secondary="user_roles", back_populates="roles")
+
+
+user_roles = Table(
+    "user_roles",
+    Base.metadata,
+    Column("user_id", ForeignKey("users.id"), primary_key=True),
+    Column("role_id", ForeignKey("roles.id"), primary_key=True),
+)
+
+
+---
+
+🧪 How to insert data
+1️⃣ Create roles
+admin = Role(name="Admin", slug="admin")
+editor = Role(name="Editor", slug="editor")
+
+session.add_all([admin, editor])
+await session.commit()
+
+2️⃣ Create a user and assign roles
+user = User(
+    name="Farukh",
+    email="farukh@example.com",
+    roles=[admin, editor],  # ← magic happens here
+)
+
+session.add(user)
+await session.commit()
+
+
+SQLAlchemy will automatically insert rows into user_roles:
+
+user_roles
+---------
+user_id | role_id
+   1    |    1
+   1    |    2
+
+3️⃣ Add a role to an existing user
+
+result = await session.execute(select(User).options(selectinload(User.roles)).where(User.id == 3))
+user = result.scalar_one_or_none()
+
+user.roles.append(admin)
+await session.commit()
+ 
+
+---
+
+4️⃣ Insert into the join table directly
+You do NOT need to load roles at all.
+
+await session.execute(
+    user_roles.insert().values(
+        user_id=5,
+        role_id=2,
+    )
+)
+await session.commit()
