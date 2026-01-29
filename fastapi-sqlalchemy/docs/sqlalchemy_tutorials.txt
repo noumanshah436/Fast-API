@@ -1,0 +1,7 @@
+
+
+Python SQLAlchemy ORM 🧙‍♂️
+https://www.youtube.com/playlist?list=PLKm_OLZcymWhtiM-0oQE2ABrrbgsndsn0
+
+
+git clone https://github.com/noumanshah436/sqlalchemy-tutorials
