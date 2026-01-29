@@ -1,13 +1,13 @@
 from datetime import UTC, datetime
 from typing import override
-from sqlalchemy import Column, DateTime, Integer
+from sqlalchemy import Column, DateTime, Identity, Integer
 from src.database.config import Base
 
 
 class PostgresModel(Base):
     __abstract__ = True
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, Identity(), primary_key=True)
 
     created_at = Column(
         DateTime(timezone=True), default=datetime.now(UTC), nullable=False

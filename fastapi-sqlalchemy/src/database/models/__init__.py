@@ -1,4 +1,5 @@
 from src.database.config import Base
+from src.database.models.many_to_many import Course, Student, StudentCourse
 from src.database.models.post import Post
 from src.database.models.role import Role
 from src.database.models.user import User
@@ -13,4 +14,7 @@ __all__ = [
     "Profile",
     "Role",
     "user_roles",
+    "StudentCourse",
+    "Student",
+    "Course",
 ]
