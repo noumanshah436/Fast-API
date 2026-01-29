@@ -16,7 +16,7 @@ session_gen = get_pg_db()
 session = await anext(session_gen)
 
 # 3️⃣ Add objects
-user = User(name="Syed nouman", email="syednouman@gmail.com")
+user = User(name="Syed nouman", email="nouman@gmail.com")
 session.add(user)
 
 # 4️⃣ Commit
