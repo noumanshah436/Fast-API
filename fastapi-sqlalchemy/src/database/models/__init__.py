@@ -1,4 +1,10 @@
 from src.database.config import Base
+from src.database.models.joined_table_inheritance import (
+    Company,
+    Employee,
+    Engineer,
+    Manager,
+)
 from src.database.models.many_to_many import Course, Student, StudentCourse
 from src.database.models.post import Post
 from src.database.models.role import Role
@@ -17,4 +23,9 @@ __all__ = [
     "StudentCourse",
     "Student",
     "Course",
+    # joined table inherotance tables
+    "Company",
+    "Employee",
+    "Engineer",
+    "Manager",
 ]

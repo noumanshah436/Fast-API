@@ -24,7 +24,7 @@ class PostgresDatabaseSettings(BaseSettings):
         extra = "ignore"
 
 
-settings = PostgresDatabaseSettings()
+settings = PostgresDatabaseSettings() # type: ignore
 
 
 # --------------------------
