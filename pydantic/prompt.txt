@@ -1,0 +1,58 @@
+
+
+
+Read the `project_plan.md` file and use it as a reference to generate **practical learning material for Pydantic in Python**.
+
+For each **main topic** in the plan (including only the most important subtopics):
+
+### 📁 Structure
+
+* Create a **separate folder per topic**
+* Inside each folder:
+
+  * Create **small, focused Python files**
+  * Each file should cover **one key concept only**
+
+### 🧠 Content Guidelines
+
+* Focus only on **important and commonly used concepts**
+* **Do NOT try to cover everything**
+* Keep explanations **simple, practical, and beginner-friendly**
+
+### 🧾 Python Files
+
+* Each file must:
+
+  * Be **short and focused**
+  * Contain **no more than 70 lines of code**
+  * Include **clear inline comments** explaining:
+
+    * What the code is doing
+    * Why it is written that way
+    * Any important edge cases or pitfalls
+* Prefer **real-world examples** (e.g., API validation, FastAPI use cases, parsing external data)
+
+### 📘 README.md (per topic)
+
+Include a concise `README.md` in each folder with:
+
+* Simple explanation of the topic
+* Key takeaways (bullet points)
+* When and why to use it (practical context)
+
+### ⚠️ Important Constraints
+
+* Skip:
+
+  * Exercises
+  * Overly detailed theory
+  * Rare/edge-case features unless critical
+* Keep everything:
+
+  * **Clean and minimal**
+  * **Easy to scan and understand**
+
+### 🎯 Goal
+
+The final output should feel like a **clean, minimal, real-world focused Pydantic learning repo**, optimized for quick understanding rather than exhaustive coverage.
+ 

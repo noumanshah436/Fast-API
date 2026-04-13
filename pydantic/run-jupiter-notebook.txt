@@ -13,3 +13,23 @@ jupyter notebook
 In the terminal and in the folder where your ipynb file is located, enter:
 
 jupyter notebook NAMEOFFILE.ipynb
+
+
+Introduction
+Basic Models
+Validation Exceptions
+Deserializing Data
+Required vs Optional Fields
+Nullable Fields
+Aliases and the Field Class
+Serialization
+Field and Defaults
+Model Configuration - Populate by Name
+Mutable Defaults
+Default Factories
+Custom Serializers
+Custom Validators
+Nested Models
+Conclusion
+
+create code for these topics so that I can leanr
