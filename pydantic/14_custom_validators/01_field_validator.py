@@ -1,7 +1,22 @@
 """
 @field_validator (mode="after")
 ===============================
-Single-field domain rules, AFTER type coercion has run.
+Single-field domain rules AFTER type coercion has run.
+
+Cheat sheet
+---------------------------------------------------------------------------
+@field_validator("x")                           default mode="after"
+@field_validator("x", mode="before")            raw input, pre-type
+@field_validator("x", "y")                      one rule, many fields
+@field_validator("*")                           wildcard, every field
+raise ValueError("...")                         -> ValidationError, loc=("x",)
+return v (possibly transformed)                 Pydantic keeps what you return
+
+Rules of thumb
+- Need to RESHAPE input (str→list, trim) → mode="before".
+- Need to VALIDATE/NORMALIZE a typed value → mode="after" (default).
+- Cross-field logic → use @model_validator instead (next file).
+- Always decorate with @classmethod; first arg is `cls`.
 """
 
 from pydantic import BaseModel, ValidationError, field_validator
@@ -13,28 +28,24 @@ class Signup(BaseModel):
     username: str
     email: str
 
-    # mode="after" (default): `v` is already guaranteed to be a str here.
-    @field_validator("username", mode="after")
+    @field_validator("username")   # mode="after" by default
     @classmethod
-    def _username_not_reserved(cls, v: str) -> str:
+    def _not_reserved(cls, v: str) -> str:
         if v.lower() in RESERVED:
-            # ValueError becomes a ValidationError with loc=("username",).
             raise ValueError(f"{v!r} is reserved")
         return v
 
-    @field_validator("email", mode="after")
+    @field_validator("email")
     @classmethod
-    def _email_lowercase(cls, v: str) -> str:
+    def _lowercase(cls, v: str) -> str:
         if "@" not in v:
             raise ValueError("invalid email")
-        # Return the normalized value -- Pydantic uses whatever you return.
-        return v.lower()
+        return v.lower()   # normalized value flows downstream
 
 
 print(Signup(username="alice", email="Alice@Example.COM"))
-# email is normalized to 'alice@example.com'
 
 try:
     Signup(username="admin", email="a@b.co")
 except ValidationError as e:
-    print(e.errors()[0]["msg"])   # Value error, 'admin' is reserved
+    print(e.errors()[0]["loc"], e.errors()[0]["msg"])

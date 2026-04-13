@@ -1,63 +1,47 @@
-# Topic 2: Basic Models
+# 2. Basic Models
 
-## BaseModel
+> ⚡ **TL;DR** — Subclass `BaseModel`, declare typed fields, and you get validation, serialization, and schema generation for free.
 
-`BaseModel` is the foundation class for all Pydantic models. Every model you create inherits from it and gains automatic validation, serialization, and schema generation.
-
-## Type Hints
-
-Pydantic uses standard Python type hints to define fields. Supported types include:
-
-- **Basic types**: `str`, `int`, `float`, `bool`
-- **Date/time**: `datetime`, `date`, `time`, `timedelta`
-- **Collections**: `List`, `Dict`, `Set`, `Tuple`, `FrozenSet`
-- **Special**: `UUID`, `Decimal`, `Enum`, `Path`
-- **Optional**: `Optional[str]` (field can be `None`)
-- **Nested models**: Other `BaseModel` subclasses
-
-## Model Instantiation
-
-Models can be created in three ways:
+## 🎯 Three ways to instantiate
 
 ```python
-# 1. Keyword arguments
-user = User(name="Alice", age=30)
-
-# 2. Dictionary unpacking
-user = User(**{"name": "Alice", "age": 30})
-
-# 3. model_validate (recommended for dicts)
-user = User.model_validate({"name": "Alice", "age": 30})
+User(name="Alice", age=30)                    # kwargs
+User(**{"name": "Alice", "age": 30})          # dict-spread
+User.model_validate({"name": "Alice"})        # explicit verb, dynamic input
 ```
 
-## Attribute Access
+## Core methods
 
-Fields are accessed using dot notation: `user.name`, `user.age`. Nested models also use dot notation: `user.address.city`.
+| Method | Purpose |
+|---|---|
+| `model_dump()` | Model → dict |
+| `model_dump_json()` | Model → JSON string (native datetime/UUID) |
+| `model_validate(data)` | dict → Model |
+| `model_validate_json(raw)` | JSON string → Model |
+| `model_json_schema()` | Generate JSON Schema |
+| `model_copy(update={...})` | Copy with tweaks, no re-validation |
+| `model_fields` | `{name: FieldInfo}` metadata |
 
-Use `model_fields` to introspect field definitions at runtime.
+## Filtering `model_dump(...)` output
 
-## Serialization Methods
+| Flag | Use case |
+|---|---|
+| `include={"a","b"}` | Public whitelist |
+| `exclude={"password_hash"}` | Strip secrets |
+| `exclude_none=True` | PATCH / OpenAPI friendliness |
+| `exclude_unset=True` | PATCH diffs — only what caller sent |
+| `exclude_defaults=True` | Slim payloads |
 
-| Method | Description |
-|--------|-------------|
-| `model_dump()` | Convert model to dictionary |
-| `model_dump_json()` | Convert model to JSON string |
-| `model_validate(data)` | Create model from dict |
-| `model_validate_json(json_str)` | Create model from JSON string |
-| `model_json_schema()` | Generate JSON Schema for the model |
-| `model_copy(update={...})` | Create a copy with updated fields |
+## ⚠️ Gotchas
 
-### Controlling Serialization Output
+- `model_dump()` is **not** always JSON-safe (e.g. `datetime`). Use `model_dump_json()` or FastAPI's `jsonable_encoder`.
+- Mutable defaults (`list[str] = []`) are safe in Pydantic — each instance gets its own copy.
+- Prefer `model_copy` over direct mutation to keep value-object semantics.
 
-- `include` / `exclude` -- select specific fields
-- `exclude_defaults` -- omit fields that equal their default value
-- `exclude_none` -- omit fields that are `None`
-- `exclude_unset` -- omit fields not explicitly set
-
-## Files in This Section
+## Files
 
 | File | Description |
-|------|-------------|
-| `01_creating_models.py` | Model definition, instantiation, supported types |
-| `02_attribute_access.py` | Dot notation, model_fields, immutability, model_copy |
-| `03_serialization_basics.py` | model_dump, model_dump_json, include/exclude |
+|---|---|
+| `01_creating_models.py` | Field declaration, supported types, instantiation |
+| `02_attribute_access.py` | Dot access, `model_fields`, `model_copy` |
+| `03_serialization_basics.py` | `model_dump` / `model_dump_json`, include/exclude |

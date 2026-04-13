@@ -1,7 +1,21 @@
 """
 ValidationError Structure
 =========================
-Pydantic collects every error at once -- inspect loc / msg / type / input.
+Pydantic collects EVERY error in one pass — no fail-fast surprises.
+
+Each error dict
+---------------
+loc     →  tuple path, e.g. ("address", "zip_code")   — join with "." for API
+msg     →  human-readable                             — show to end users
+type    →  machine code, e.g. "missing", "int_parsing" — branch on this
+input   →  the offending value                        — for logs / debugging
+url     →  docs link for the error type               — optional
+
+Useful methods
+--------------
+e.error_count()    →  int
+e.errors()         →  list[dict]          (programmatic)
+e.json(indent=2)   →  str (ready for 422) — FastAPI uses this shape internally
 """
 
 from pydantic import BaseModel, ValidationError
@@ -18,25 +32,14 @@ class User(BaseModel):
     address: Address
 
 
-# Bad payload with three separate problems -- missing field, bad int, nested int.
-bad = {
-    "age": "not-a-number",
-    "address": {"street": "Main", "zip_code": "abc"},
-    # "name" missing entirely
-}
+# One payload, three independent problems — all reported together.
+bad = {"age": "not-a-number", "address": {"street": "Main", "zip_code": "abc"}}
 
 try:
     User.model_validate(bad)
 except ValidationError as e:
-    # error_count: quick check, useful for logging severity.
-    print("errors:", e.error_count())
-
-    # .errors() -> list of dicts, ideal for programmatic handling.
-    # Each entry has: loc (tuple path), msg, type (machine code), input.
+    print("count:", e.error_count())
     for err in e.errors():
-        print(f"  loc={err['loc']}  type={err['type']}  msg={err['msg']}")
-        print(f"    input={err['input']!r}")
-
-    # .json() -> ready-to-return string for API responses.
-    # FastAPI uses this shape internally for 422 responses.
-    print(e.json(indent=2))
+        # loc is a tuple so you can walk nested paths; join for display.
+        path = ".".join(str(p) for p in err["loc"])
+        print(f"  {path}: [{err['type']}] {err['msg']}  input={err['input']!r}")

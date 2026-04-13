@@ -1,45 +1,41 @@
-# Topic 5: Required vs Optional Fields
+# 5. Required vs Optional Fields
 
-## The Rule
+> ⚡ **TL;DR** — A field is required **iff it has no default**. Type hints (`Optional`, `X | None`) describe allowed *values*, not whether the caller may omit the field.
 
-In Pydantic, whether a field is **required** or **optional** depends entirely on whether it has a **default value**:
+## 🎯 The truth table
 
-| Declaration | Required? | Explanation |
-|-------------|-----------|-------------|
-| `name: str` | Yes | No default -- must be provided |
-| `name: str = "Unknown"` | No | Has a default value |
-| `name: str = None` | No | Default is None (but type hint says str, so this is a bit loose) |
-| `name: Optional[str]` | Yes | Optional means "str or None", but there's no default, so it's still required |
-| `name: Optional[str] = None` | No | Accepts str or None, defaults to None |
+| Declaration | Required? | Accepts `None`? |
+|---|---|---|
+| `name: str` | ✅ | ❌ |
+| `name: str = "Anon"` | ❌ | ❌ |
+| `name: str \| None` | ✅ | ✅ |
+| `name: str \| None = None` | ❌ | ✅ |
+| `name: str = Field(..., min_length=1)` | ✅ | ❌ |
 
-## Common Confusion: Optional Does NOT Mean "Optional to Provide"
-
-`Optional[str]` from the `typing` module means "this field can be `str` or `None`". It says nothing about whether you must provide a value. A field is only optional to provide if it has a default.
+## ⚡ The #1 gotcha
 
 ```python
-class User(BaseModel):
-    # Required -- must provide a value, and that value can be str or None
-    nickname: Optional[str]
-
-    # Not required -- if not provided, defaults to None
-    bio: Optional[str] = None
+class Profile(BaseModel):
+    nickname: Optional[str]   # REQUIRED — must pass, even as None
 ```
 
-## Ellipsis (...) for Explicit Required
+`Optional[X]` == `X | None`. It says *"value may be None"*, **not** *"caller may omit"*. Presence is controlled by defaults alone.
 
-You can use `...` (Ellipsis) with `Field()` to make it explicit that a field is required:
+## 🎯 Making "required" explicit
 
-```python
-from pydantic import Field
+- `name: str` — implicit (no default)
+- `name: str = Field(..., min_length=1)` — `...` (Ellipsis) = "no default" + lets you attach constraints / description
 
-class User(BaseModel):
-    name: str = Field(..., min_length=1)  # Required + has a constraint
-```
+## ⚠️ Gotchas
 
-## Files in This Section
+- Defaults are **validated** too — a bad default raises as early as first use (or at class definition with `validate_default=True`).
+- Mutable defaults: use `Field(default_factory=list)`, not `= []` on plain types. (Pydantic actually handles `= []` safely by deep-copying, but the factory form is the idiomatic, universal fix.)
+- `x: str = None` "works" but the type hint lies — prefer `x: str | None = None`.
+
+## Files
 
 | File | Description |
-|------|-------------|
-| `01_required_fields.py` | Fields without defaults, Ellipsis syntax |
-| `02_optional_fields.py` | Optional type hint, default None, subtle distinctions |
-| `03_default_values.py` | Static defaults, interaction with validation |
+|---|---|
+| `01_required_fields.py` | No-default, `Field(...)`, `missing` vs constraint errors |
+| `02_optional_fields.py` | `Optional[X]` ≠ "may omit" — the classic trap |
+| `03_default_values.py` | Static defaults, `default_factory`, validated defaults |

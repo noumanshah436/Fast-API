@@ -1,25 +1,35 @@
-# 07 - Aliases and Field
+# 07 - Aliases and `Field()`
 
-`Field()` is how you attach metadata and constraints to a field beyond its type.
-Aliases let you decouple the Python attribute name from the wire format (JSON).
+**⚡ TL;DR** — `Field()` decorates a field with metadata, constraints, and aliases.
+Aliases decouple your Python attribute names from the wire JSON.
 
-## Key takeaways
+## 🎯 When to reach for it
 
-- `Field()` adds description, title, examples, and constraints that flow into JSON schema.
-- `alias="camelName"` maps external (JSON) keys to Python snake_case attributes.
-- Set `model_config = ConfigDict(populate_by_name=True)` to accept either name.
-- Constraints (`gt`, `ge`, `lt`, `le`, `min_length`, `max_length`, `pattern`) run during validation.
+| Situation | Use |
+|-----------|-----|
+| Frontend sends `camelCase`, backend is `snake_case` | `alias="fooBar"` + `populate_by_name=True` |
+| Need a description in `/docs` | `Field(..., description="...")` |
+| Required field with constraints | `Field(..., min_length=3)` |
+| Optional with constraint | `Field(default=None, ge=0)` |
 
-## When / why
+## Constraints cheatsheet
 
-- Building FastAPI endpoints where the client sends camelCase JSON but your code uses snake_case.
-- Generating OpenAPI docs that need rich field descriptions and examples.
-- Enforcing business rules (age > 0, password length >= 8) at the model boundary.
+| Kind    | Args                                         |
+|---------|----------------------------------------------|
+| Numeric | `gt`, `ge`, `lt`, `le`, `multiple_of`        |
+| String  | `min_length`, `max_length`, `pattern`        |
+| Seq     | `min_length`, `max_length`                   |
+
+## ⚠️ Gotchas
+
+- Without `populate_by_name=True`, constructing by the Python name raises.
+- `alias` governs both in and out; use `validation_alias` / `serialization_alias` to split.
+- `Field(...)` (ellipsis) = explicit "required".
 
 ## Files
 
-| File | What it shows |
-|------|---------------|
-| `01_field_basics.py` | `Field()` with description/title/default, JSON schema output |
-| `02_field_aliases.py` | camelCase aliases, `populate_by_name` |
-| `03_field_constraints.py` | numeric and string constraints, regex patterns |
+| File | Shows |
+|------|-------|
+| `01_field_basics.py` | metadata → JSON schema |
+| `02_field_aliases.py` | camelCase ↔ snake_case, `populate_by_name` |
+| `03_field_constraints.py` | numeric / string / regex bounds |

@@ -1,7 +1,22 @@
 """
 include / exclude
 =================
-Trim the output -- hide sensitive fields, send partial updates.
+Shape the output -- hide secrets, build PATCH bodies, trim nulls.
+
+Option              Keeps in output
+------------------------------------------------------------------
+include={"a", "b"}  only listed fields (whitelist)
+exclude={"pwd"}     everything except listed fields (blacklist)
+exclude_none=True   drops fields whose value is None
+exclude_unset=True  drops fields the caller never set (PATCH gold)
+exclude_defaults=T  drops fields still at their default value
+
+Nested form: include={"address": {"city"}}  -- same for exclude.
+
+Rule of thumb:
+- Response bodies  → exclude={"password_hash", ...}
+- PATCH payloads   → exclude_unset=True
+- Sparse public JSON → exclude_none=True
 """
 
 from pydantic import BaseModel
@@ -16,17 +31,9 @@ class User(BaseModel):
 
 u = User(id=1, email="a@x.com", password_hash="xxx")
 
-# Drop secrets before returning from an API handler.
-print(u.model_dump(exclude={"password_hash"}))
+print(u.model_dump(exclude={"password_hash"}))  # strip secrets before sending
+print(u.model_dump(include={"id", "email"}))    # whitelist public fields
+print(u.model_dump(exclude_none=True))          # 'bio' dropped
 
-# Whitelist mode: only these fields go out.
-print(u.model_dump(include={"id", "email"}))
-
-# exclude_none: skip fields whose value is None -- common for sparse responses.
-print(u.model_dump(exclude_none=True))  # bio is dropped
-
-# exclude_unset: only fields the caller actually set -- PATCH endpoints.
-patch = User(id=1, email="a@x.com", password_hash="xxx")
-print(patch.model_dump(exclude_unset=True))  # bio omitted -- never supplied
-
-# Nested exclude uses dict syntax: exclude={"address": {"country"}}.
+# exclude_unset shines for PATCH: only fields the caller actually set come out.
+print(u.model_dump(exclude_unset=True))

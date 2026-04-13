@@ -2,6 +2,17 @@
 mode="before" vs mode="after"
 =============================
 "before" shapes the raw input; "after" polices the typed value.
+
+Cheat sheet
+---------------------------------------------------------------------------
+mode="before"   v is the RAW caller input (str, list, None, ...)
+                use it to RESHAPE: trim, split CSV, coerce, None→default
+mode="after"    v is already the declared type (list[str] here)
+                use it for DOMAIN RULES: lowercase, dedupe, range checks
+
+Rule of thumb
+- Use "before" ONLY to reshape input.
+- Keep every semantic rule in "after" -- safer, clearer, type-guaranteed.
 """
 
 from pydantic import BaseModel, field_validator
@@ -38,7 +49,3 @@ print(Article(title="hi", tags="Python, FastAPI, python"))
 
 print(Article(title="hi", tags=["A", "b", "A"]))
 # tags=['a', 'b']
-
-
-# Rule of thumb: use "before" ONLY to reshape input. Keep all semantic rules
-# in "after" where the value is already the declared type -- safer and clearer.

@@ -1,7 +1,16 @@
 """
 by_alias on dump
 ================
-Emit camelCase JSON for frontends while keeping snake_case in Python.
+Keep Python snake_case internally; emit camelCase JSON to the client.
+
+Call                              Output keys
+--------------------------------------------------
+m.model_dump()                    Python attribute names
+m.model_dump(by_alias=True)       Field alias (camelCase / wire format)
+m.model_dump_json(by_alias=True)  JSON string with aliases
+
+FastAPI pattern: accept AND return `by_alias=True` so the wire contract is
+independent of whatever the Python code happens to name things.
 """
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -17,14 +26,6 @@ class OrderResponse(BaseModel):
 
 order = OrderResponse(order_id=42, customer_name="Ada", total_usd=99.9)
 
-# Default dump uses Python names -- useful for internal logs / storage.
-print(order.model_dump())
-# {'order_id': 42, 'customer_name': 'Ada', 'total_usd': 99.9}
-
-# by_alias=True is the shape you send back to a JS client.
-print(order.model_dump(by_alias=True))
-# {'orderId': 42, 'customerName': 'Ada', 'totalUsd': 99.9}
-
-# Common FastAPI pattern: accept and return by_alias so the JSON contract is
-# stable regardless of how Python code names things internally.
+print(order.model_dump())                  # Python names -- internal logs
+print(order.model_dump(by_alias=True))     # camelCase -- client response
 print(order.model_dump_json(by_alias=True))

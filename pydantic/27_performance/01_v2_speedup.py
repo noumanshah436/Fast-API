@@ -1,10 +1,22 @@
 """
 Why v2 is fast
 ==============
-The validation core (`pydantic-core`) is compiled Rust. Typical speedups
-over v1 are 5-50x depending on model shape.
+Validation core (`pydantic-core`) is compiled Rust. 5-50x over v1 out of the box.
+
+Where the speed comes from:
+- No per-field Python calls; the validation graph runs in Rust.
+- JSON -> model is one pass (see 03_model_validate_json.py).
+- Schema is built once per class; instance validation just walks it.
+
+Hot paths that benefit most:
+- Request handlers (every request validates input + response).
+- Stream consumers (Kafka, SQS, Kinesis) -- millions of JSON messages.
+- Bulk importers / ETL -- large list[dict] -> list[Model].
+
+You already get it. No config flag, no opt-in.
 """
 
+import time
 from pydantic import BaseModel
 
 
@@ -14,20 +26,10 @@ class Item(BaseModel):
     price: float
 
 
-# Imagine an ingestion endpoint receiving N records.
-# In v1 this loop was the bottleneck; in v2 it's usually negligible.
+# Illustrative only -- not a real benchmark.
 payloads = [{"id": i, "name": f"item-{i}", "price": i * 1.5} for i in range(1_000)]
 
-
-# Illustrative sketch -- don't treat the numbers as a real benchmark.
-import time
 start = time.perf_counter()
 items = [Item.model_validate(p) for p in payloads]
 elapsed = time.perf_counter() - start
 print(f"Validated {len(items)} items in {elapsed*1000:.2f} ms")
-
-
-# Why it matters:
-# - No per-field Python function calls; validation graph runs in Rust.
-# - JSON -> model is a single pass (see 03_model_validate_json.py).
-# - Lets you validate at boundaries without worrying about throughput.

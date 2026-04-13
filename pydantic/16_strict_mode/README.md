@@ -1,22 +1,29 @@
 # 16. Strict Mode
 
-By default Pydantic is **lax**: `"42"` becomes `42`, `"true"` becomes `True`.
-Great for HTTP query strings and form data -- dangerous when you need exact
-types (money, auth tokens, IDs from trusted internal services).
+## ⚡ TL;DR
+Pydantic is **lax by default** -- `"42"` becomes `42`, `"true"` becomes `True`. Strict mode disables that, per-field, per-model, or per-call.
 
-## Key Takeaways
-- Default mode coerces compatible types -- a feature, not a bug.
-- `StrictInt`, `StrictStr`, `StrictBool`, `StrictFloat` reject cross-type input.
-- `model_config = ConfigDict(strict=True)` turns strict mode on for the whole
-  model -- every field must match its declared type exactly.
-- Per-call strictness: `Model.model_validate(data, strict=True)`.
+## 🎯 When to use
+- Money / accounting -- no silent `"10"` -> `10`.
+- Auth APIs -- a stray `"false"` becoming `True` is a vulnerability.
+- Internal service-to-service JSON -- both ends already speak real types.
+- Leave public HTTP / form endpoints on default lax.
 
-## When to Use It
-- Financial / accounting code (no silent `"10"` -> `10`).
-- Auth APIs where `"false"` accidentally becoming `True` is a vuln.
-- Internal service-to-service contracts where both sides already speak JSON
-  with real types.
+## 🔧 Three scopes
+
+| Scope | API | Use when |
+|------|-----|----------|
+| Per field | `StrictInt`, `StrictStr`, `StrictBool`, `StrictFloat` | Only a few sensitive fields |
+| Per model | `model_config = ConfigDict(strict=True)` | Whole model is internal |
+| Per call  | `Model.model_validate(data, strict=True)` | One trusted boundary |
+
+## ⚠️ Gotchas
+- In lax mode, whole-number floats (`3.0`) pass as `int`; `3.5` fails (lossy).
+- `bool` is the widest coercer -- `"1"`, `"yes"`, `"on"` all pass.
+- `StrictBool` rejects `0` and `1` -- only real `True`/`False` pass.
 
 ## Files
-- `01_type_coercion.py` -- the default lax behavior and its mental model.
-- `02_strict_types.py` -- StrictX fields and model-wide strict config.
+| File | Topic |
+|------|-------|
+| 01_type_coercion.py | Default lax behaviour + mental model |
+| 02_strict_types.py  | `StrictX` fields + `ConfigDict(strict=True)` |

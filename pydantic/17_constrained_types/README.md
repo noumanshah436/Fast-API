@@ -1,25 +1,31 @@
-# Constrained Types
+# 17. Constrained Types
 
-Restrict values beyond just the type: length, range, pattern, multiples.
+## ⚡ TL;DR
+Push invariants into the type itself: length, range, regex, step. The v2-native shape is `Annotated[T, Field(...)]` -- legacy `constr` / `conint` / `confloat` still work but compose poorly with validators.
 
-In Pydantic v2 the preferred style is `Annotated[T, Field(...)]`. The old
-`constr` / `conint` / `confloat` helpers still work but are kept for
-backward compatibility.
-
-## Key takeaways
-- Use `Annotated[str, Field(min_length=..., pattern=...)]` for strings.
-- Use `Field(gt=, ge=, lt=, le=, multiple_of=)` for numerics.
-- Constraints are validated at construction and on assignment (if enabled).
-- Prefer `Annotated` — it composes with other validators cleanly.
-
-## When / why
+## 🎯 When to use
 - Reject bad input at the edge (usernames, prices, quantities).
-- Push invariants into the type, not scattered `if` checks.
-- The JSON schema auto-reflects the constraints — free API docs.
+- Replace scattered `if` checks with a single declarative rule.
+- Auto-document constraints in the generated JSON / OpenAPI schema.
+
+## 🔧 Cheatsheet
+
+| Target | Constraint kwargs |
+|--------|------------------|
+| `str`  | `min_length`, `max_length`, `pattern`, `strip_whitespace`, `to_lower`, `to_upper` |
+| `int` / `float` | `gt`, `ge`, `lt`, `le`, `multiple_of`, `allow_inf_nan` |
+| `list` / `set` / `dict` | `min_length`, `max_length` |
+| `Decimal` | `max_digits`, `decimal_places` |
+
+## ⚠️ Gotchas
+- `pattern` must match the whole string in v2 (not `re.search`-style).
+- `strip_whitespace` runs before length checks -- `"   "` can violate `min_length=1`.
+- `bool` is a subclass of `int` -- `gt=0` still accepts `True` unless strict is on.
+- Reassignment re-validates only with `ConfigDict(validate_assignment=True)`.
 
 ## Files
 | File | Topic |
 |------|-------|
 | 01_field_constraints.py | String constraints via `Annotated + Field` |
-| 02_numeric_constraints.py | Numeric bounds and multiples |
-| 03_legacy_con_types.py | Legacy `constr` / `conint` helpers |
+| 02_numeric_constraints.py | Numeric bounds and `multiple_of` |
+| 03_legacy_con_types.py | Legacy `constr` / `conint` / `confloat` |

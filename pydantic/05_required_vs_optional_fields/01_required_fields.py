@@ -1,31 +1,45 @@
 """
 Required Fields
 ===============
-No default == required. Field(...) adds constraints without changing that.
+No default == required. `Field(...)` makes it explicit AND attaches constraints.
+
+Ways to say "required"
+----------------------
+name: str                          →  implicit required — no default
+name: str = Field(..., min_length=1)  →  explicit required + constraint + schema description
+                                       `...` (Ellipsis) is the "no default" sentinel
+
+Error types you will see
+------------------------
+omitted                            →  type="missing"
+wrong type                         →  type="int_parsing" / "string_type" / ...
+constraint failure                 →  type="string_too_short" / "greater_than" / ...
+
+Gotcha
+------
+A required field with a failed CONSTRAINT does not report as "missing".
 """
 
 from pydantic import BaseModel, Field, ValidationError
 
 
 class SignupForm(BaseModel):
-    # No default -> required. Omitting it raises ValidationError(type="missing").
+    # Implicit required.
     email: str
 
-    # Field(...) explicitly marks "required" and attaches constraints.
-    # The Ellipsis is a sentinel meaning "no default, do not skip".
+    # Explicit required + constraint. Same requiredness as above, plus min_length.
     password: str = Field(..., min_length=8)
 
-    # Equivalent to the above but reads differently -- useful when you want
-    # a description in the OpenAPI schema but still need "required".
+    # Same pattern, adds an OpenAPI description (FastAPI picks this up).
     username: str = Field(..., min_length=1, description="Display handle")
 
 
-# Happy path.
+# Happy path — all three provided.
 form = SignupForm(email="a@x.com", password="hunter22!", username="alice")
 print(form)
 
 
-# Missing field -> "missing" error, distinct from a type error.
+# Missing field → "missing" error, distinct from type errors.
 try:
     SignupForm(email="a@x.com", password="hunter22!")
 except ValidationError as e:
@@ -33,7 +47,7 @@ except ValidationError as e:
     print(err["type"], err["loc"])   # missing ('username',)
 
 
-# Constraint violation -- required + too short fails on the constraint, not "missing".
+# Constraint violation — the field was PRESENT, so "missing" is not the right label.
 try:
     SignupForm(email="a@x.com", password="short", username="alice")
 except ValidationError as e:

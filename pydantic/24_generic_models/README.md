@@ -1,24 +1,35 @@
 # 24. Generic Models
 
-Pydantic v2 supports `typing.Generic` directly on `BaseModel`. No more
-`GenericModel` base class (that was v1). Useful for reusable wrappers:
-pagination, API envelopes, task results.
+## ⚡ TL;DR
+`typing.Generic` now works directly on `BaseModel` — one container schema,
+many payload types. Parameterize at the call-site: `Page[User]`, `Response[Order]`.
 
-## Key takeaways
+## 🎯 When to use
+- Paginated list endpoints (same shape, different item type)
+- Consistent success/error envelopes across an API
+- Task/result wrappers, cache entries, any reusable container
 
-- Inherit from both `BaseModel` and `Generic[T]`.
-- Parameterize at use-site: `Page[User]`, `Response[Order]`.
-- Full validation is generated per specialization.
+## v1 → v2 rename
+| v1 | v2 |
+|----|----|
+| `from pydantic.generics import GenericModel` | `from typing import Generic, TypeVar` |
+| `class Page(GenericModel, Generic[T])` | `class Page(BaseModel, Generic[T])` |
 
-## When to use
+## Key points
+- Inherit from both `BaseModel` **and** `Generic[T]`
+- Pydantic builds a specialized validator per `Model[Concrete]`
+- Specializations are cached — reuse is cheap
+- Compose freely: `Response[Page[Order]]`
 
-- Paginated list endpoints (same shape, different item type).
-- Consistent success/error envelopes across an API.
-- Any container schema that shouldn't be rewritten per payload type.
+## ⚠️ Gotchas
+| Pitfall | Fix |
+|---------|-----|
+| Forgetting `Generic[T]` | T becomes `Any`, no per-item validation |
+| TypeVar defined inside class | Declare it at module level |
+| `Optional[T]` without `= None` | v2 still requires an explicit default |
 
 ## Files
-
 | File | Purpose |
 |------|---------|
-| `01_generic_model.py` | `Page[T]` pagination wrapper. |
-| `02_api_response_wrapper.py` | `Response[T]` envelope with status + data. |
+| `01_generic_model.py` | `Page[T]` pagination wrapper |
+| `02_api_response_wrapper.py` | `Response[T]` envelope with status + data |

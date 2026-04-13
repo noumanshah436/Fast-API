@@ -1,30 +1,32 @@
 """
 Default values
 ==============
-Direct assignment vs Field(default=...) -- same behavior, different ergonomics.
+Two equivalent ways, one with room for metadata.
+
+Form                                     When to prefer
+--------------------------------------------------------------------
+x: int = 0                               simple, clean
+x: int = Field(default=0)                + description / alias / examples
+x: list[int] = Field(default_factory=list)   mutable defaults (always factory!)
+x: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+⚠️ Never write `x: list[int] = []` -- Pydantic copies but you'll still trip on
+   the pattern elsewhere. Use default_factory for lists, dicts, datetimes.
 """
 
+from datetime import datetime, timezone
 from pydantic import BaseModel, Field
 
 
 class Settings(BaseModel):
-    # Plain form -- fine when you don't need metadata.
     debug: bool = False
     retries: int = 3
-
-    # Field form -- identical default, but lets you add description/alias.
-    # Reach for this once you want the value to show in OpenAPI docs.
-    timeout: float = Field(default=5.0, description="HTTP timeout in seconds")
+    timeout: float = Field(default=5.0, description="HTTP timeout (s)")
     log_level: str = Field(default="INFO", description="Python logging level")
+    # Mutable / time-based defaults must go through default_factory.
+    tags: list[str] = Field(default_factory=list)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
-s = Settings()
-print(s.model_dump())
-# {'debug': False, 'retries': 3, 'timeout': 5.0, 'log_level': 'INFO'}
-
-# Overriding works the same either way.
-s2 = Settings(debug=True, timeout=10.0)
-print(s2.model_dump())
-
-# Rule of thumb: start simple (plain assignment). Switch to Field(default=...)
-# only when you also need description, alias, constraints, or examples.
+print(Settings().model_dump())
+print(Settings(debug=True, timeout=10.0).model_dump())

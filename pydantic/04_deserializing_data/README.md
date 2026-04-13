@@ -1,40 +1,40 @@
-# Topic 4: Deserializing Data
+# 4. Deserializing Data
 
-## What is Deserialization?
+> ⚡ **TL;DR** — Deserialization is "raw input → validated model". Three entry points: the constructor, `model_validate()`, `model_validate_json()` — all share the same validation pipeline.
 
-Deserialization is the process of converting raw data (dicts, JSON strings, etc.) into structured Pydantic model instances. This is one of the most common operations in real-world applications -- whenever you receive data from an API, a database, a config file, or user input, you need to parse it into a validated model.
+## 🎯 Pick the right entry point
 
-## Key Methods
+| Call | Input | When to use |
+|---|---|---|
+| `Model(**data)` | kwargs | You already hold named values |
+| `Model.model_validate(data)` | dict (or ORM row with `from_attributes`) | Dynamic / nested / non-identifier keys |
+| `Model.model_validate_json(raw)` | `str` or `bytes` | JSON body, Kafka msg, file on disk — **preferred over `json.loads` + `model_validate`** |
 
-| Method | Input | Description |
-|--------|-------|-------------|
-| `Model(**data)` | keyword arguments | Standard constructor, validates each field |
-| `model_validate(data)` | dict (or dict-like object) | Parse a dict into a model instance |
-| `model_validate_json(json_str)` | JSON string | Parse a JSON string directly into a model |
+## ⚡ Why `model_validate_json` > `json.loads` + `model_validate`
 
-## model_validate() vs Constructor
+- Parsing happens inside Rust core — no intermediate Python `dict`
+- One call, one try/except
+- JSON syntax errors become `ValidationError(type="json_invalid")` — uniform shape
 
-Both `User(name="Alice", age=30)` and `User.model_validate({"name": "Alice", "age": 30})` produce the same result. The difference:
+## Lax vs strict coercion
 
-- **Constructor**: Best when you already have individual values.
-- **model_validate()**: Best when you have a dict (e.g., from a database row, another function, etc.).
+| Mode | `"1"` → `int` | `"true"` → `bool` | When |
+|---|---|---|---|
+| lax (default) | ✅ | ✅ | HTTP, CLI, forms — messy input |
+| `strict=True` | ❌ | ❌ | Trusted upstream (Protobuf, internal RPC) |
 
-## model_validate_json()
+Scope `strict` per call (`model_validate(data, strict=True)`) or model-wide (`ConfigDict(strict=True)`).
 
-`model_validate_json()` parses a JSON string directly. This is faster than doing `json.loads()` followed by `model_validate()` because Pydantic can optimize the parsing internally.
+## ⚠️ Gotchas
 
-## Handling Invalid Input
+- Constructor and `model_validate` run the **same** pipeline — pick for readability, not behaviour.
+- `"yes"` / `"no"` are **not** coerced to `bool`; `"true"` / `"false"` / `0` / `1` are.
+- A bad JSON string raises `ValidationError`, **not** `json.JSONDecodeError` — catch the right thing.
 
-When deserialization fails, Pydantic raises `ValidationError` with details about every field that failed. You can:
-
-1. Catch the error and inspect individual field errors.
-2. Return user-friendly messages.
-3. Use `strict=True` to disable type coercion during parsing.
-
-## Files in This Section
+## Files
 
 | File | Description |
-|------|-------------|
-| `01_parsing_dict_to_model.py` | Parsing dicts into models with model_validate() |
-| `02_parsing_json_to_model.py` | Parsing JSON strings with model_validate_json() |
-| `03_handling_invalid_input.py` | Error scenarios and graceful handling |
+|---|---|
+| `01_parsing_dict_to_model.py` | `Model(**d)` vs `model_validate(d)` |
+| `02_parsing_json_to_model.py` | `model_validate_json` + benchmark vs two-step |
+| `03_handling_invalid_input.py` | json_invalid · lax coercion · `strict=True` |

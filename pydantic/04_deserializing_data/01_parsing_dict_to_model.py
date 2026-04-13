@@ -1,7 +1,25 @@
 """
 Parsing dicts into models
 =========================
-Model(**d) and model_validate(d) are equivalent -- pick for readability.
+`Model(**d)` and `Model.model_validate(d)` run the SAME pipeline — pick for readability.
+
+Quick chooser
+-------------
+Model(**d)                  →  known-shape dict, reads like a constructor call
+Model.model_validate(d)     →  dynamic / deeply-nested input
+                               ALSO required when keys aren't valid Python idents
+                               ALSO required with from_attributes=True (ORM rows)
+
+Both paths
+----------
+- Apply the same lax coercion rules
+- Raise the same ValidationError shape
+- Track `exclude_unset` identically
+
+Rule of thumb
+-------------
+Writing a test / hand-rolling args?   → constructor
+Processing external / dynamic data?   → model_validate  (verb makes intent obvious)
 """
 
 from pydantic import BaseModel
@@ -13,27 +31,12 @@ class Order(BaseModel):
     total: float
 
 
-# Typical source: a DB row fetched as a dict, a cached JSON decoded elsewhere,
-# or kwargs forwarded from a higher-level function.
+# Typical source: a DB row, a decoded JSON payload, forwarded kwargs.
 row = {"id": 101, "customer": "Alice", "total": 42.5}
 
+o1 = Order(**row)                  # constructor style
+o2 = Order.model_validate(row)     # explicit "this is validation"
 
-# Constructor form -- use when the dict is known-shape and "spread" reads clean.
-o1 = Order(**row)
-
-# model_validate form -- use when the dict is dynamic, deeply nested,
-# or you need the explicit "this is validation" signal at call sites.
-# Also the only option when keys aren't valid Python identifiers.
-o2 = Order.model_validate(row)
-
-print(o1 == o2)            # True -- same validation pipeline under the hood
+# Same pipeline → equal instances.
+assert o1 == o2
 print(o1.model_dump())
-
-
-# Why prefer model_validate in many codebases:
-# - explicit verb: "validate", not "construct"
-# - works with SQLAlchemy rows via from_attributes=True (not shown here)
-# - no risk of accidentally passing extra kwargs that shadow a field
-weird_keys = {"id": 1, "customer": "Bob", "total": 9.99}
-o3 = Order.model_validate(weird_keys)
-print(o3)

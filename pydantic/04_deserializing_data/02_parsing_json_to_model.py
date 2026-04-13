@@ -1,7 +1,23 @@
 """
 Parsing JSON strings into models
 ================================
-model_validate_json parses + validates in one pass -- skip json.loads.
+One call parses AND validates — skip the json.loads detour.
+
+Two paths
+---------
+Model.model_validate_json(raw)     →  direct  — Rust parses + validates in one pass
+Model.model_validate(json.loads(r))→  two-step — works, but extra Python round-trip
+
+Why prefer the direct path
+--------------------------
+- Faster: parsing happens inside pydantic-core (Rust), no Python dict materialized
+- Shorter: one call, one try/except
+- Clearer errors: JSON syntax issues surface as ValidationError(type="json_invalid")
+
+When the two-step path is fine
+------------------------------
+- You already have a `dict` (e.g., from a middleware that parsed JSON for you)
+- You need to mutate the dict before validation
 """
 
 import json
@@ -17,23 +33,21 @@ class WebhookEvent(BaseModel):
     currency: str
 
 
-# Raw JSON as you would receive it from an HTTP request body,
-# a Kafka message, or a file on disk.
+# Typical source: HTTP body, Kafka message, file on disk.
 raw = '{"id": "evt_123", "type": "charge.succeeded", "amount": "19.99", "currency": "USD"}'
 
 
-# Direct: Pydantic parses the bytes/str itself (Rust-backed, no Python json.loads).
+# Direct path — preferred. Note "19.99" (str) is coerced to float.
 event = WebhookEvent.model_validate_json(raw)
 print(event)
 
 
-# Equivalent two-step -- works, but slower and more code.
-data = json.loads(raw)
-event2 = WebhookEvent.model_validate(data)
+# Two-step — same result, more code and slower.
+event2 = WebhookEvent.model_validate(json.loads(raw))
 assert event == event2
 
 
-# Quick benchmark on a batch -- the direct path wins noticeably at scale.
+# Micro-benchmark: the gap widens at scale (batch jobs, log ingestion).
 N = 10_000
 t0 = time.perf_counter()
 for _ in range(N):

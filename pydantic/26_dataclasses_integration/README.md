@@ -1,24 +1,30 @@
 # 26. Dataclasses Integration
 
-Pydantic ships a `@pydantic.dataclasses.dataclass` decorator that validates
-fields on assignment while keeping the surface of a stdlib dataclass.
+## ⚡ TL;DR
+`@pydantic.dataclasses.dataclass` gives you a stdlib-compatible dataclass with runtime validation. Use it for interop with code that inspects `dataclasses.fields` — otherwise reach for `BaseModel`.
 
-## Key takeaways
+## 🎯 When to use
+- Third-party library iterates `dataclasses.fields(obj)` or calls `asdict`.
+- Adding validation to an existing dataclass-based codebase without churn.
+- You want `is_dataclass(obj) == True` but with type checking.
 
-- Drop-in replacement for `@dataclass`, plus runtime validation.
-- No `model_dump` / `model_validate` — use `dataclasses.asdict` / direct init.
-- `BaseModel` has the richer API (serialization, JSON schema, aliases, etc.).
-- Pydantic dataclasses interoperate with libraries that inspect `dataclasses.fields`.
+## 🔁 Cheat sheet
 
-## When to use
+| Need                          | Pick                       |
+|-------------------------------|----------------------------|
+| HTTP / JSON / OpenAPI         | `BaseModel`                |
+| `model_dump`, aliases, schema | `BaseModel`                |
+| Stdlib dataclass interop      | `@pydantic_dataclass`      |
+| Trusted internal data         | stdlib `@dataclass`        |
 
-- Existing code already builds on stdlib dataclasses.
-- You want validation without changing the call sites.
-- Otherwise — prefer `BaseModel` for full feature parity.
+## ⚠️ Gotchas
+- No `model_dump` / `model_validate` on a pydantic dataclass — use `dataclasses.asdict` and call the constructor directly.
+- No `model_json_schema()` — if you need a schema, switch to `BaseModel`.
+- Mixing stdlib and pydantic dataclasses in inheritance trees is brittle. Don't.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `01_pydantic_dataclass.py` | Validated dataclass vs `BaseModel` side-by-side. |
-| `02_when_to_use.py` | Decision guide between the two. |
+| `02_when_to_use.py` | Decision tree between the three options. |

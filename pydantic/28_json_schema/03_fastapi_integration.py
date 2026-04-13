@@ -1,34 +1,41 @@
 """
 FastAPI integration
 ===================
-FastAPI reads Pydantic models to build request/response schemas,
-/openapi.json, and the Swagger UI at /docs -- for free.
+Declaring a Pydantic model is the whole integration: FastAPI reads it to
+parse requests, validate responses, publish /openapi.json, and render /docs.
+
+What FastAPI does for each endpoint                    Powered by
+--------------------------------------------------------------------------
+Parse & validate request body                          model_validate_json
+Return 422 with structured error list on bad input     ValidationError.errors()
+Build /openapi.json for consumers                      model_json_schema()
+Render Swagger UI at /docs                             same schema
+Validate return value (response_model=...)             model_validate
+
+No extra decorators, no hand-written YAML -- the type hints carry it.
 """
 
-# Comment-only example so this file runs without FastAPI installed.
-#
-# from fastapi import FastAPI
-# from pydantic import BaseModel, Field
-#
-# app = FastAPI()
-#
-# class User(BaseModel):
-#     id: int = Field(description="Primary key.", examples=[1])
-#     name: str = Field(description="Display name.", examples=["Alice"])
-#
-# class UserCreate(BaseModel):
-#     name: str
-#
-# @app.post("/users", response_model=User)
-# def create_user(payload: UserCreate) -> User:
-#     # payload is already validated by the time we get here.
-#     return User(id=1, name=payload.name)
-#
-# What FastAPI does behind the scenes:
-# - Calls UserCreate.model_validate_json(request_body) -> 422 on error.
-# - Calls User.model_json_schema() -> injects into /openapi.json.
-# - Renders Swagger UI at /docs using that schema (descriptions, examples, types).
-# - Validates the return value against response_model=User before serializing.
-#
-# Takeaway: the moment you declare a Pydantic model, FastAPI already knows
-# how to parse it, document it, and generate a client for it.
+# Left as a comment-only example so this file runs without FastAPI installed.
+# (Install FastAPI + uvicorn locally if you want to exercise it.)
+
+from fastapi import FastAPI
+from pydantic import BaseModel, Field
+
+app = FastAPI()
+
+class User(BaseModel):
+    # description + examples surface in /docs next to the field.
+    id: int = Field(description="Primary key.", examples=[1])
+    name: str = Field(description="Display name.", examples=["Alice"])
+
+class UserCreate(BaseModel):
+    # Separate input model -> never accept an id from the client.
+    name: str
+
+@app.post("/users", response_model=User)
+def create_user(payload: UserCreate) -> User:
+    # payload is already validated; inside the handler, trust the types.
+    return User(id=1, name=payload.name)
+
+# Gotcha: the handler's return value is re-validated against response_model.
+# That's a feature -- it stops accidental leakage of extra fields.

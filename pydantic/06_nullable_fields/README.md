@@ -1,37 +1,32 @@
 # Topic 6: Nullable Fields
 
-## Nullable vs Optional-to-Provide
+**⚡ TL;DR** — `| None` widens the *type*. A *default* makes the field omittable.
+Two independent axes — mix them to match your API contract.
 
-These are two independent axes that Pydantic keeps separate:
+## The 2x2
 
-- **Nullable**: the field's **type** allows `None` as a value (`str | None`).
-- **Optional to provide**: the field has a **default**, so callers can omit it.
+| Declaration             | Accepts None? | Can omit? | Typical use           |
+|-------------------------|---------------|-----------|-----------------------|
+| `x: str`                | no            | no        | required + non-null   |
+| `x: str = "x"`          | no            | yes       | safe default          |
+| `x: str \| None`        | yes           | no        | PATCH / required-null |
+| `x: str \| None = None` | yes           | yes       | truly optional        |
 
-A field can be any combination of the two. The type hint controls nullability; the presence of a default controls required-vs-optional.
+## 🎯 When to use
 
-| Declaration | Can be None? | Can be omitted? |
-|-------------|--------------|-----------------|
-| `name: str` | No | No |
-| `name: str = "x"` | No | Yes |
-| `name: str \| None` | Yes | No (must pass explicitly, even as None) |
-| `name: str \| None = None` | Yes | Yes |
+- **Mirror a NULLABLE DB column in a write model** → `str | None = None`
+- **PATCH body** (omit ≠ null) → `str | None` + `model_dump(exclude_unset=True)`
+- **Config loader / trailing metadata** → `str | None = None`
 
-## Key Takeaways
+## ⚠️ Gotchas
 
-- `str | None` (or `Optional[str]`) only widens the **type**; it does not make the field optional to provide.
-- To make a field both nullable AND omittable, add `= None`.
-- Use "required-nullable" (`x: str | None`) when the API contract says the client must acknowledge the field -- even to clear it. Useful for PATCH-style updates where omitted means "leave alone" and `null` means "clear".
-- Use "optional-nullable" (`x: str | None = None`) for truly optional values like profile bios, nicknames, trailing metadata.
+- `Optional[X]` in v2 does NOT imply `= None`. Add the default yourself.
+- Passing `None` to a non-nullable field → `*_type` error (e.g. `string_type`).
+- `exclude_unset` (never set) ≠ `exclude_none` (set to None). PATCH needs `exclude_unset`.
 
-## When to Use
+## Files
 
-- **DB models** mirroring a nullable column: `str | None = None` if inserts may omit it, `str | None` without a default if you always pass it.
-- **PATCH request bodies**: required-nullable gives you the omit/null distinction needed to implement "don't touch" vs "set to null".
-- **Config loaders**: almost always `Type | None = None` for optional settings.
-
-## Files in This Section
-
-| File | Description |
-|------|-------------|
-| `01_allowing_none.py` | `str \| None` accepts None as a valid value |
-| `02_optional_vs_nullable.py` | required-nullable vs optional-nullable, PATCH pattern |
+| File | Shows |
+|------|-------|
+| `01_allowing_none.py` | `str \| None` — nullable type, still required |
+| `02_optional_vs_nullable.py` | PATCH vs PUT: the omit/null distinction |

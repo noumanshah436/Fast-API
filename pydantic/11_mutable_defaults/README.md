@@ -1,26 +1,31 @@
-# 11 - Mutable Defaults
+# 11. Mutable Defaults
 
-The classic "shared list" bug that burns every Python dev once, and how
-Pydantic handles it differently from dataclasses.
+⚡ **TL;DR** — A mutable default (`list`, `dict`, `set`) written at class level is ONE shared object in plain Python. Always write `Field(default_factory=list)`.
 
-## Key takeaways
+## 🎯 When to use
 
-- A mutable default (list, dict, set) defined at class level is SHARED across
-  all instances in plain Python / dataclasses -- mutating one mutates all.
-- Dataclasses raise at class-definition time to stop this bug.
-- Pydantic v2 deep-copies the default per instance, so it IS safe -- but
-  relying on that is still bad style.
-- Always use `Field(default_factory=list)` (or `dict`, `set`) for mutable
-  defaults. Intent is explicit and behavior matches every Python codebase.
+- Any field whose default is a `list`, `dict`, `set`, or custom mutable.
+- Tags, scores, metadata dicts, error buckets, cached lookups.
+- Auto-generated IDs and timestamps (see section 12).
 
-## When / why
+## Behavior across frameworks
 
-- Any time a field's default is a list, dict, set, or custom mutable object.
-- Pydantic models representing things like tags, scores, metadata dicts.
+| Framework     | `items: list = []` | Outcome                                        |
+|---------------|--------------------|------------------------------------------------|
+| Plain class   | allowed            | ONE list shared across instances (silent bug)  |
+| `@dataclass`  | rejected           | `ValueError` at class-definition time          |
+| Pydantic v2   | allowed            | Deep-copied per instance (safe but poor style) |
+
+## ⚠️ Gotchas
+
+- Pydantic hiding the bug can mask issues once you port code to a `@dataclass`
+  or plain class. Write `default_factory` **everywhere**.
+- `datetime.utcnow` is deprecated — prefer `datetime.now(timezone.utc)`.
+- Factories must be **zero-arg** callables (wrap args in a `lambda`).
 
 ## Files
 
-| File | What it shows |
-|------|---------------|
-| `01_mutable_default_pitfall.py` | The bug in a plain class, dataclass guard, Pydantic protection |
-| `02_correct_pattern.py` | `default_factory=list` / `default_factory=dict` done right |
+| File                              | What it shows                                               |
+|-----------------------------------|-------------------------------------------------------------|
+| `01_mutable_default_pitfall.py`   | Shared-list bug, dataclass guard, Pydantic's auto-copy      |
+| `02_correct_pattern.py`           | `Field(default_factory=list/dict/set)` the right way        |

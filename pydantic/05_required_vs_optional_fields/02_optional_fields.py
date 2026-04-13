@@ -1,7 +1,22 @@
 """
-Optional Fields -- the common pitfall
-=====================================
-`Optional[X]` means "X or None", NOT "may be omitted". Defaults decide that.
+Optional Fields — the #1 Pydantic trap
+======================================
+`Optional[X]` means "X or None". It does NOT mean "the caller may omit it".
+
+Required vs presence — decoupled
+--------------------------------
+Declaration                        Required?   Accepts None?
+-----------------------------------------------------------------
+x: str                             yes         no
+x: Optional[str]   (== str|None)   yes         yes   ← the trap
+x: Optional[str] = None            no          yes
+x: str | None = None               no          yes   (modern 3.10+ form)
+
+Rule of thumb
+-------------
+- Want "caller may omit"?   → add `= None` (or any default)
+- Want "value can be None"? → add `| None` to the type
+- Want both?                → both, together
 """
 
 from typing import Optional
@@ -10,31 +25,29 @@ from pydantic import BaseModel, ValidationError
 
 
 class Profile(BaseModel):
-    # Required -- the value may be None, but you MUST pass it explicitly.
-    # This catches the "did the caller forget, or intentionally clear?" case.
+    # Required — value may be None, but caller MUST pass it.
+    # Useful when you need to distinguish "forgot" from "explicit null".
     nickname: Optional[str]
 
-    # Not required -- omitted calls default to None.
-    # Use this for truly optional fields in request bodies.
+    # Not required — defaults to None if omitted.
     bio: Optional[str] = None
 
-    # Modern Python 3.10+ style -- same meaning as Optional[str] = None.
+    # Modern syntax — identical meaning to `Optional[str] = None`.
     avatar_url: str | None = None
 
 
-# Must pass nickname, even as None.
+# Works: nickname passed explicitly as None.
 p = Profile(nickname=None)
-print(p)  # nickname=None bio=None avatar_url=None
+print(p)
 
 
-# Forgetting nickname -> "missing", even though its type allows None.
-# This is the #1 Pydantic gotcha. `Optional` is about type, not presence.
+# Omitting nickname → "missing", even though None is in its type.
+# This is the trap: `Optional` is about the type, not about presence.
 try:
     Profile()
 except ValidationError as e:
     print(e.errors()[0]["type"], e.errors()[0]["loc"])   # missing ('nickname',)
 
 
-# Passing all three works as expected.
 full = Profile(nickname="al", bio="hi", avatar_url="https://x/y.png")
 print(full.model_dump())

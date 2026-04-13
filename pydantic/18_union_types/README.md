@@ -1,22 +1,29 @@
-# Union Types
+# 18. Union Types
 
-A field that accepts more than one type. Pydantic v2 uses *smart mode* by
-default -- it picks the best-matching member instead of blindly trying
-left-to-right.
+## ⚡ TL;DR
+`X | Y` accepts multiple types. v2 runs in **smart mode**: exact type match wins, no silent left-to-right coercion. For polymorphic payloads, add a discriminator.
 
-## Key takeaways
-- `int | str` (PEP 604) is the v2-native way to declare unions.
-- Smart mode picks the exact-type match when possible; no data coercion surprises.
-- For polymorphic payloads, use **discriminated (tagged) unions** -- faster,
-  clearer errors, and cleaner JSON schema.
+## 🎯 When to use
+- APIs that accept id-or-slug (`int | str`).
+- Webhooks / event buses where payload shape depends on a `type` tag.
+- Polymorphic DTOs (shipping vs pickup, card vs bank transfer, etc.).
 
-## When / why
-- Webhook payloads with different shapes keyed by a `type` field.
-- API endpoints that accept multiple input formats (id number or slug string).
-- Event sourcing / command buses where a single channel carries many shapes.
+## 🔧 Smart vs discriminated
+
+| | Smart union (`A \| B`) | Discriminated (`Field(discriminator="type")`) |
+|-|-------------------------|-----------------------------------------------|
+| Dispatch | Try all members | Tag lookup (O(1)) |
+| Errors | Lists every branch | Points at the tag mismatch |
+| Schema | `anyOf` | `oneOf` with mapping |
+| Needs `Literal` tag | No | Yes |
+
+## ⚠️ Gotchas
+- Prefer `A | B` over `Union[A, B]` in v2.
+- Missing discriminator field -> startup-time error, not runtime surprise.
+- Need v1 left-to-right behaviour? `Field(union_mode="left_to_right")`.
 
 ## Files
 | File | Topic |
 |------|-------|
-| 01_union_basics.py | `X \| Y` unions and smart validation |
+| 01_union_basics.py | `X \| Y` unions + smart mode |
 | 02_discriminated_union.py | `Field(discriminator=...)` for tagged payloads |

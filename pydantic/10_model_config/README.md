@@ -1,27 +1,39 @@
 # 10 - Model Config
 
-`model_config` is how you tune a model's behavior: strictness, extra fields,
-ORM support, validation on assignment, and more.
+**⚡ TL;DR** — `model_config = ConfigDict(...)` is the single knob-panel for a
+model's behavior. ConfigDict is typed, so flag names are autocompleted.
 
-## Key takeaways
+## 🎯 When to reach for it
 
-- In Pydantic v2, config lives in a class-level `model_config = ConfigDict(...)`.
-- Pydantic v1 used an inner `class Config:` block -- that's gone.
-- `extra="ignore"` (default), `"forbid"`, or `"allow"` controls unknown fields.
-- `from_attributes=True` lets a model be built from any object's attributes --
-  classic SQLAlchemy / ORM use case.
-- Other useful flags: `validate_assignment`, `str_strip_whitespace`, `frozen`.
+| Situation                                        | Flag                          |
+|--------------------------------------------------|-------------------------------|
+| Unknown keys must fail loudly (API inputs)       | `extra="forbid"`              |
+| Build from SQLAlchemy / dataclass / any object   | `from_attributes=True`        |
+| Accept both `camelCase` and `snake_case` on input| `populate_by_name=True`       |
+| Catch bad writes after construction              | `validate_assignment=True`    |
+| Immutable value object (hashable, dict-key-able) | `frozen=True`                 |
+| Auto-trim whitespace on all `str` fields         | `str_strip_whitespace=True`   |
 
-## When / why
+## Extra-fields policies
 
-- `extra="forbid"` for request payloads where unknown keys indicate client bugs.
-- `from_attributes=True` to convert a SQLAlchemy row into a response model.
-- `populate_by_name=True` alongside aliases for flexible input parsing.
+| Value       | Behavior                        | Best for                |
+|-------------|---------------------------------|-------------------------|
+| `"ignore"`  | drop unknown keys silently (default) | lenient readers     |
+| `"forbid"`  | raise `extra_forbidden`         | strict API contracts    |
+| `"allow"`   | keep as attributes, show in dump| webhook envelopes       |
+
+## ⚠️ Gotchas
+
+- v1's inner `class Config:` is **gone** — use `model_config = ConfigDict(...)`.
+- v1 `orm_mode=True` → v2 `from_attributes=True` (same feature, better name).
+- `extra="ignore"` is the default — typos in client payloads vanish silently.
+- `frozen=True` is class-wide and blocks **all** attribute writes.
+- `validate_assignment=True` re-runs validators on every set — slight cost per write.
 
 ## Files
 
-| File | What it shows |
-|------|---------------|
-| `01_model_config_basics.py` | `ConfigDict` vs legacy inner `class Config` |
-| `02_extra_fields.py` | `ignore` vs `forbid` vs `allow` comparison |
-| `03_from_attributes.py` | Building models from ORM-like objects |
+| File | Shows |
+|------|-------|
+| `01_model_config_basics.py` | `ConfigDict`, `validate_assignment`, `str_strip_whitespace` |
+| `02_extra_fields.py`        | `ignore` vs `forbid` vs `allow`                            |
+| `03_from_attributes.py`     | building models from ORM rows / arbitrary objects          |

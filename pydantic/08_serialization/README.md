@@ -1,24 +1,37 @@
 # 08 - Serialization
 
-Turning models back into dicts / JSON for responses, logs, and storage.
+**⚡ TL;DR** — `model_dump()` → dict, `model_dump_json()` → str. Tweak with
+`include`, `exclude`, `by_alias`, and the `exclude_*` family.
 
-## Key takeaways
+## Option cheatsheet
 
-- `model_dump()` -> dict, `model_dump_json()` -> JSON string.
-- `include` / `exclude` shape the output (nested via dict syntax).
-- `exclude_none=True` drops null fields; `exclude_unset=True` drops fields the user never set.
-- `by_alias=True` emits keys in the alias form (camelCase) for API responses.
+| Option               | Effect                                           |
+|----------------------|--------------------------------------------------|
+| `include={...}`      | whitelist                                        |
+| `exclude={...}`      | blacklist                                        |
+| `exclude_none=True`  | drop None-valued fields                          |
+| `exclude_unset=True` | drop fields the caller never set (PATCH)         |
+| `exclude_defaults`   | drop fields still at default                     |
+| `by_alias=True`      | emit alias (camelCase) keys                      |
+| `mode="json"`        | dict with JSON-safe values (datetime→str, etc.)  |
 
-## When / why
+## 🎯 When to use what
 
-- Building FastAPI responses that should hide internal fields (e.g. password hashes).
-- PATCH endpoints where you only want to send fields the client actually provided.
-- Returning JSON that matches a frontend's expected camelCase shape.
+- **API response, hiding secrets** → `exclude={"password_hash"}`
+- **PATCH body → SQL UPDATE** → `exclude_unset=True`
+- **JS client expects camelCase** → `by_alias=True` + `populate_by_name=True`
+- **Logs / files** → `model_dump_json(indent=2)`
+
+## ⚠️ Gotchas
+
+- `exclude_unset` ≠ `exclude_none`. First = never provided; second = provided as None.
+- Nested include/exclude takes a dict, not a set of dotted paths.
+- `by_alias=True` on dump is independent of `populate_by_name` on input.
 
 ## Files
 
-| File | What it shows |
-|------|---------------|
-| `01_model_dump_basics.py` | `model_dump`, `model_dump_json`, nested models |
-| `02_include_exclude.py` | `include`, `exclude`, `exclude_none`, `exclude_unset` |
-| `03_by_alias.py` | `by_alias=True` for camelCase API responses |
+| File | Shows |
+|------|-------|
+| `01_model_dump_basics.py` | `model_dump` / `model_dump_json`, nested |
+| `02_include_exclude.py` | shaping, `exclude_unset` / `exclude_none` |
+| `03_by_alias.py` | camelCase wire format |

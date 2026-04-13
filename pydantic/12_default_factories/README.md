@@ -1,22 +1,27 @@
 # 12. Default Factories
 
-`Field(default_factory=...)` produces a **fresh default per instance**, avoiding
-the classic "shared mutable default" bug and enabling dynamic values like
-timestamps and UUIDs.
+⚡ **TL;DR** — `Field(default_factory=...)` produces a **fresh default per instance**. Use it for mutable containers and for values that must be computed at creation time (UUIDs, timestamps).
 
-## Key Takeaways
-- Use `default_factory` for any mutable default (`list`, `dict`, `set`).
-- Also use it when the default must be computed at instantiation time
-  (`datetime.now`, `uuid.uuid4`).
-- The factory is a zero-arg callable; Pydantic calls it for each new model.
-- Do **not** write `= []` or `= datetime.now()` at class scope -- both are
-  evaluated once and shared.
+## 🎯 When to use
 
-## When to Use It
-- Collection fields (tags, items, errors) that start empty.
-- Auto-generated IDs for DB / API records.
-- `created_at` / `updated_at` timestamps on request models.
+| Scenario                    | Factory                                                    |
+|-----------------------------|------------------------------------------------------------|
+| Empty collection            | `default_factory=list` / `dict` / `set`                    |
+| Auto-generated ID           | `default_factory=uuid4`                                    |
+| `created_at` / `updated_at` | `default_factory=lambda: datetime.now(timezone.utc)`       |
+| Random token / secret       | `default_factory=secrets.token_urlsafe`                    |
+| Copied literal              | `default_factory=lambda: {"v": 1}`                         |
+
+## ⚠️ Gotchas
+
+- Factory must be **zero-arg** — wrap args in a `lambda`.
+- `= []` or `= datetime.now()` at class scope → evaluated **once**, shared.
+- `datetime.utcnow` is deprecated; always use `datetime.now(timezone.utc)`.
+- Caller-supplied values override the factory — round-trips work seamlessly.
 
 ## Files
-- `01_default_factory_basics.py` -- mutable defaults done right.
-- `02_dynamic_defaults.py` -- `uuid4` and `datetime.now` factories.
+
+| File                              | What it shows                                          |
+|-----------------------------------|--------------------------------------------------------|
+| `01_default_factory_basics.py`    | `list` / `dict` / literal-lambda factories             |
+| `02_dynamic_defaults.py`          | `uuid4` + `datetime.now(timezone.utc)`                 |

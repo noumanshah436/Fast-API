@@ -1,32 +1,41 @@
 """
-Pydantic dataclass vs BaseModel: which to pick?
-===============================================
-Rule of thumb: BaseModel unless you need dataclass interop.
+Pick one: BaseModel vs pydantic dataclass vs stdlib dataclass
+=============================================================
+Decision tree in one glance.
+
+Question                                   -> Pick
+-------------------------------------------------------------
+Crossing an HTTP/JSON boundary?            -> BaseModel
+Need model_json_schema / OpenAPI?          -> BaseModel
+Need aliases, model_dump, validators?      -> BaseModel
+Existing code uses dataclasses.fields()?   -> pydantic @dataclass
+Third-party lib expects a dataclass?       -> pydantic @dataclass
+Trusted internal data, no validation?      -> stdlib @dataclass
+
+Why BaseModel wins by default: its API is a superset.
+Pydantic dataclasses exist for interop, not for new designs.
 """
 
-from dataclasses import asdict, fields
+from dataclasses import fields
 from pydantic import BaseModel
 from pydantic.dataclasses import dataclass as pydantic_dataclass
 
 
-# Scenario 1: third-party code iterates dataclasses.fields(obj).
-# A pydantic dataclass slots right in; a BaseModel would not.
+# Scenario 1: library helper iterates stdlib fields() -- BaseModel would not fit.
 @pydantic_dataclass
 class JobConfig:
     name: str
     retries: int = 3
 
 
-def describe(obj):
-    # Hypothetical library helper that only understands dataclasses.
+def describe(obj):  # pretend this is third-party code
     return {f.name: getattr(obj, f.name) for f in fields(obj)}
 
 
 print(describe(JobConfig(name="nightly-sync")))
 
 
-# Scenario 2: HTTP boundary -- you want JSON schema, aliases, model_dump_json,
-# validators, etc. BaseModel is the right tool.
+# Scenario 2: HTTP boundary -- need schema + JSON serialization. BaseModel.
 class JobRequest(BaseModel):
     name: str
     retries: int = 3
@@ -34,10 +43,3 @@ class JobRequest(BaseModel):
 
 print(JobRequest(name="x").model_dump_json())
 print(JobRequest.model_json_schema()["required"])
-
-
-# Quick guide:
-#   BaseModel           -> APIs, config, anything touching JSON or OpenAPI.
-#   pydantic dataclass  -> validation layer on top of existing dataclass code.
-#   stdlib @dataclass   -> trusted internal data, no validation needed.
-print(asdict(JobConfig(name="demo")))

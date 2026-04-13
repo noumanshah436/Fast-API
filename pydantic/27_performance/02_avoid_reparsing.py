@@ -1,8 +1,20 @@
 """
 Don't double-validate
 =====================
-Once data is a BaseModel instance, it's already validated.
-Re-running it through `model_validate(model_dump())` is pure waste.
+A BaseModel instance is already validated. Round-tripping it through
+dump + validate is pure waste.
+
+Anti-pattern                                What it costs
+-------------------------------------------------------------------
+Model.model_validate(obj.model_dump())      Full dump + full re-validate
+Model(**obj.model_dump())                   Same, plus kwargs unpack
+Revalidating on every function call         Death by a thousand passes
+
+Do instead:
+- Validate once at the boundary (HTTP in, DB row, file).
+- Pass the *instance* through the call chain. Let types carry the trust.
+- Need a mutation? -> model_copy(update={...}), not re-validate.
+- model_dump() is for OUTPUT (JSON response, logs), not round-trips.
 """
 
 from pydantic import BaseModel
@@ -17,22 +29,15 @@ class Order(BaseModel):
 order = Order(id=1, customer="Alice", total=42.0)
 
 
-# Anti-pattern: serialize -> dict -> re-validate. Two extra passes for nothing.
 def bad(o: Order) -> Order:
+    # Two extra passes for zero information gain.
     return Order.model_validate(o.model_dump())
 
 
-# Better: pass the instance directly. Downstream functions should accept the model.
 def good(o: Order) -> Order:
-    return o
+    return o  # types already guarantee validity
 
 
-# If you really need a copy (e.g., to mutate without aliasing), use model_copy.
+# Need a tweaked copy without mutating the original? Use model_copy.
 cloned = order.model_copy(update={"total": 50.0})
 print(cloned)
-
-
-# Rule of thumb:
-# - Validate once, at the boundary (HTTP input, DB row, file).
-# - After that, trust the types. Keep the instance alive through the call chain.
-# - model_dump() is for output (JSON response, logging), not for round-tripping.

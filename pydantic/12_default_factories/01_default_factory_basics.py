@@ -1,34 +1,36 @@
 """
 default_factory basics
 ======================
-Fresh mutable defaults, one per instance.
+One fresh mutable per instance -- the end of shared-list bugs.
+
+Cheat sheet
+---------------------------------------------------------------------------
+Field(default_factory=list)                empty list
+Field(default_factory=dict)                empty dict
+Field(default_factory=set)                 empty set
+Field(default_factory=lambda: {"k": 0})    copied literal (safe to mutate)
+
+Rules
+- Factory is any zero-arg callable; Pydantic calls it per new instance.
+- Wrap arguments in a lambda: `default_factory=lambda: Counter({"a": 1})`.
+- Stricter configs actively reject `= []`; the factory is idiomatic anyway.
 """
 
 from pydantic import BaseModel, Field
 
 
 class Cart(BaseModel):
-    # Every Cart gets its OWN list -- not a shared one.
     items: list[str] = Field(default_factory=list)
-    # Same rule for dicts: metadata per-instance.
     metadata: dict[str, str] = Field(default_factory=dict)
 
 
-a = Cart()
-b = Cart()
-a.items.append("book")            # mutating a should not affect b
-print("a.items:", a.items)        # ['book']
-print("b.items:", b.items)        # []  -- independent list
-print("same object?", a.items is b.items)  # False
+a, b = Cart(), Cart()
+a.items.append("book")
+print(a.items, b.items)           # ['book'] []
+print(a.items is b.items)         # False -- different objects
 
 
-# Contrast: writing `items: list[str] = []` would silently share ONE list
-# between every Cart ever created. Pydantic v2 actually blocks this for you,
-# but default_factory is the idiomatic fix everywhere.
-
-
-# Factories can be any zero-arg callable, including a lambda for a constant
-# structure that still needs to be copied per instance.
+# Lambda wraps a literal dict so each Config gets its own copy.
 class Config(BaseModel):
     flags: dict[str, bool] = Field(default_factory=lambda: {"debug": False})
 

@@ -1,58 +1,40 @@
-# Topic 3: Validation Exceptions
+# 3. Validation Exceptions
 
-## ValidationError
+> ⚡ **TL;DR** — Bad input raises `ValidationError`. It reports **all** failures at once, each with a structured `loc / msg / type / input`.
 
-When Pydantic cannot validate input data against the model's type hints and constraints, it raises a `ValidationError`. This is the primary exception you will work with in Pydantic.
+## 🎯 Anatomy of an error
 
-Key characteristics:
-- Pydantic collects **all** validation errors before raising, not just the first one.
-- Each error includes the field location, a human-readable message, and an error type code.
-- Errors can be accessed as Python dicts, JSON, or iterated over.
+| Key | Meaning | Use it for |
+|---|---|---|
+| `loc` | Tuple path to the bad field | `"address.zip_code"` display |
+| `msg` | Human-readable reason | End-user message |
+| `type` | Machine code (`missing`, `int_parsing`, …) | Branching / i18n keys |
+| `input` | Offending value | Logs, debugging |
+| `url` | Link to Pydantic docs | Optional |
 
-## Error Structure
-
-Each error in a `ValidationError` contains:
-
-| Key | Description |
-|-----|-------------|
-| `loc` | Tuple of field names showing the path to the error (e.g., `('address', 'zip_code')`) |
-| `msg` | Human-readable error message |
-| `type` | Machine-readable error type code (e.g., `int_parsing`, `missing`) |
-| `input` | The value that caused the error |
-| `url` | Link to documentation about the error type |
-
-## How to Handle Errors
+## Useful methods on `ValidationError`
 
 ```python
-from pydantic import BaseModel, ValidationError
-
-try:
-    user = User(name="Alice", age="bad")
-except ValidationError as e:
-    # Get error count
-    print(e.error_count())
-
-    # Iterate over errors
-    for error in e.errors():
-        print(error["loc"], error["msg"])
-
-    # Get as JSON
-    print(e.json())
+e.error_count()     # int
+e.errors()          # list[dict]  — programmatic
+e.json(indent=2)    # str         — ready for HTTP 422 (FastAPI uses this)
 ```
 
-## Common Patterns
+## Three patterns you'll use
 
-1. **Try/Except** -- Catch `ValidationError` and format user-friendly messages.
-2. **Safe Parse** -- Wrap `model_validate` to return `(model, None)` or `(None, errors)`.
-3. **API Error Formatting** -- Convert errors into structured API response format.
+1. **try/except** at boundaries (HTTP handlers, CLIs, workers).
+2. **safe_parse** → `(model, None) | (None, errors)` — Go/Rust-style results.
+3. **to_api_errors** → `{field: msg}` — frontend-friendly shape.
 
-## Custom Error Raising
+## ⚠️ Gotchas
 
-Use `@field_validator` to add custom validation logic that raises `ValueError` with custom messages. Pydantic wraps these into `ValidationError` automatically.
+- Pydantic collects **all** errors before raising — don't assume the first one is the "real" one.
+- Inside `@field_validator`, raise plain `ValueError` — Pydantic wraps it into `ValidationError` automatically. Never raise `ValidationError` by hand.
+- `loc` is a **tuple**, not a string — join it for UI.
 
-## Files in This Section
+## Files
 
 | File | Description |
-|------|-------------|
-| `01_validation_error.py` | Understanding ValidationError structure |
-| `02_error_handling_patterns.py` | Common patterns for handling errors |
+|---|---|
+| `01_validation_error.py` | Structure of ValidationError |
+| `02_error_handling_patterns.py` | try/except · safe_parse · API formatting |

@@ -1,42 +1,47 @@
 """
 Mutable default pitfall
 =======================
-One list reused across instances -- the classic Python footgun.
+The shared-list footgun: what plain Python, @dataclass, and Pydantic each do.
+
+Behavior across frameworks
+---------------------------------------------------------------------------
+Plain class   `items: list = []`             → ONE shared list, silent bleed
+@dataclass    `items: list = []`             → ValueError at class-definition
+Pydantic v2   `items: list = []`             → deep-copied per instance (ok)
+Idiomatic     `Field(default_factory=list)`  → ALWAYS correct, portable
+
+Why the bug exists
+- Class-level defaults are evaluated ONCE, when the class body runs.
+- Every instance that omits the value binds to that SAME object.
+- Pydantic hides this by copying defaults during validation; plain Python
+  and dataclasses give you no such safety net.
+
+Rule of thumb: write `default_factory` even when Pydantic would save you --
+intent is explicit and the pattern survives a port to dataclass / plain class.
 """
 
 from pydantic import BaseModel
 
 
-# --- The bug in a plain class ---------------------------------------------
+# Plain class -- the classic footgun.
 class BadCart:
-    items: list = []  # class attribute, ONE list object shared everywhere
+    items: list = []  # class attribute: ONE list shared across ALL instances
 
 
-a = BadCart()
-b = BadCart()
+a, b = BadCart(), BadCart()
 a.items.append("apple")
-print("shared?", b.items)  # ['apple'] -- b got a's data. Ugh.
+print("shared?", b.items)  # ['apple'] -- b sees a's mutation
+
+# @dataclass refuses this at class-definition time:
+#   @dataclass class X: items: list = []     -> ValueError
+#   must use:  items: list = field(default_factory=list)
 
 
-# --- Dataclasses refuse to let you do this --------------------------------
-# from dataclasses import dataclass
-# @dataclass
-# class BadCartDC:
-#     items: list = []   # -> ValueError at class definition time
-# You MUST use: items: list = field(default_factory=list)
-
-
-# --- Pydantic deep-copies defaults per instance ---------------------------
+# Pydantic silently deep-copies defaults -- works, but still poor style.
 class PydanticCart(BaseModel):
-    items: list = []  # works, but still bad style -- prefer default_factory
+    items: list = []
 
 
-x = PydanticCart()
-y = PydanticCart()
+x, y = PydanticCart(), PydanticCart()
 x.items.append("apple")
-print("pydantic isolated?", y.items)  # [] -- Pydantic protected us
-
-# WHY the bug exists in plain Python: default values are evaluated ONCE, at
-# class-definition time. Every instance that doesn't explicitly set the field
-# sees the same object. Pydantic copies defaults during validation; plain
-# Python and dataclasses (without field()) do not.
+print("pydantic isolated?", y.items)  # [] -- Pydantic copied the default

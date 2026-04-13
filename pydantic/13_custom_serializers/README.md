@@ -1,22 +1,36 @@
 # 13. Custom Serializers
 
-`@field_serializer` lets you control exactly how a field is emitted by
-`model_dump()` / `model_dump_json()` -- handy for dates, decimals, enums, and
-any type whose default representation does not match your API contract.
+⚡ **TL;DR** — `@field_serializer` controls how `model_dump()` / `model_dump_json()` emit a field. Reach for it whenever the default representation doesn't match your API contract.
 
-## Key Takeaways
-- Decorate a method with `@field_serializer("field_name")` to override output.
-- Runs only on serialization (`model_dump`), not on input validation.
-- Use `when_used="json"` to only customize JSON output (keep Python dict raw).
-- For enums: default JSON output is the **value**; use a serializer to emit
-  the name, or to coerce to `str` / `int` explicitly.
+## 🎯 When to use
 
-## When to Use It
-- Formatting `datetime` as a specific ISO string or epoch int.
-- Rendering `Decimal` as `str` so clients do not lose precision.
-- Hiding or masking sensitive fields (`****1234`).
-- Emitting enum `.name` instead of `.value` for human-readable APIs.
+| Need                           | Example                                           |
+|--------------------------------|---------------------------------------------------|
+| Fixed `datetime` format        | ISO `YYYY-MM-DDTHH:MM:SSZ`, epoch seconds         |
+| `Decimal` precision in JSON    | Emit as `str` so clients don't lose cents         |
+| Enum human-friendly            | Emit `.name` ("ADMIN") instead of `.value`        |
+| Mask sensitive data            | `****1234` for card / SSN fields                  |
+| Different dict vs JSON         | `when_used="json"` keeps Python dict raw          |
+
+## Serializer modes
+
+| Decorator option               | Behavior                                          |
+|--------------------------------|---------------------------------------------------|
+| `@field_serializer("x")`       | Runs for both dict + JSON output                  |
+| `when_used="json"`             | Only customizes `model_dump_json`                 |
+| `when_used="unless-none"`      | Skips `None` values                               |
+| `@field_serializer("x", "y")`  | Share one function across fields                  |
+| `@field_serializer("*")`       | Apply to every field (wildcard)                   |
+
+## ⚠️ Gotchas
+
+- Serializers **only** run on output — they don't affect validation.
+- `Decimal` becomes `float` by default in JSON — always serialize to `str` for money.
+- `use_enum_values=True` in `ConfigDict` is a shortcut for always-value output.
 
 ## Files
-- `01_field_serializer.py` -- datetime + Decimal formatting.
-- `02_serializing_enums.py` -- value vs name output.
+
+| File                      | What it shows                                      |
+|---------------------------|----------------------------------------------------|
+| `01_field_serializer.py`  | `datetime` + `Decimal` custom formatting           |
+| `02_serializing_enums.py` | Default value output vs `.name` output             |

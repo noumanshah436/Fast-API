@@ -1,0 +1,24 @@
+
+Weekly Progress Update (6 – 9 April 2026)
+
+Tasks Worked On:
+
+* Updated post delete route and improved overall FastAPI project structure
+* Created CRUD operations, routes, models, and schemas for:
+  * Comments
+  * Profiles
+* Implemented and practiced SQLAlchemy relationships
+* Learned different loading strategies (lazy vs eager loading)
+* Continued project improvements and code optimization
+* Set up React project and learned core concepts:
+  * Components, props, and destructuring props
+  * Rendering elements using parent components and fragments
+  * Event handling in React
+  * CSS styling and use of arrow functions
+* Built a React page and integrated it with FastAPI backend
+* Fetched and displayed posts from API endpoint
+* Learned and implemented:
+  * React Hooks: `useState`, `useEffect` (with and without dependency array)
+  * JavaScript methods: map() and filter()
+  * Virtual DOM concept
+  * Basics of callback functions

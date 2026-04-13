@@ -1,13 +1,27 @@
 """
-from_attributes (ORM mode)
-==========================
-Build a Pydantic model from any object's attributes -- the SQLAlchemy case.
+from_attributes (formerly "ORM mode")
+=====================================
+Build a Pydantic model from any object -- read fields via getattr, not dict keys.
+
+Input shape          Works by default?   Works with from_attributes=True?
+-----------------------------------------------------------------------------
+dict / JSON          yes                 yes
+SQLAlchemy row       NO (expects dict)   yes
+dataclass instance   NO                  yes
+arbitrary object     NO                  yes  (anything with matching attrs)
+
+Why v2 renamed it:
+  v1 `orm_mode=True`  →  v2 `from_attributes=True`
+  Same feature, clearer name -- it isn't really ORM-specific.
+
+Typical FastAPI flow:
+  DB query → SQLAlchemy row → UserRead.model_validate(row) → JSON response.
 """
 
 from pydantic import BaseModel, ConfigDict
 
 
-# Stand-in for a SQLAlchemy row / ORM object.
+# Stand-in for a SQLAlchemy mapped class / any attribute-bearing object.
 class UserORM:
     def __init__(self, id: int, email: str, is_admin: bool):
         self.id = id
@@ -16,8 +30,8 @@ class UserORM:
 
 
 class UserRead(BaseModel):
-    # from_attributes=True tells Pydantic to read via getattr, not dict keys.
-    # (v1 called this orm_mode=True.)
+    # Without this flag, model_validate(orm_row) would raise -- it'd try to
+    # treat the row as a mapping and fail the subscript check.
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -27,10 +41,10 @@ class UserRead(BaseModel):
 
 row = UserORM(id=1, email="ada@example.com", is_admin=False)
 
-# model_validate walks the object's attributes and builds the model.
+# Pydantic walks the object's attributes and validates each field.
 user = UserRead.model_validate(row)
 print(user.model_dump())
 # {'id': 1, 'email': 'ada@example.com', 'is_admin': False}
 
-# Typical FastAPI flow: DB query -> ORM row -> response_model=UserRead.
-# Without from_attributes, Pydantic would expect a dict and complain.
+# Pairs perfectly with FastAPI's `response_model=UserRead` -- the framework
+# calls model_validate under the hood, so this flag is what makes it work.
